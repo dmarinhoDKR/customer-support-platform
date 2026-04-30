@@ -18,4 +18,8 @@ export interface PagedResult<T> {
     pageSize: number;
     totalCount: number;
     totalPages: number;
+
+
+    limit?: number;
+    offset?: number;
 }

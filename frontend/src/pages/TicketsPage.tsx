@@ -8,14 +8,19 @@ export function TicketsPage() {
     const [result, setResult] = useState<PagedResult<Ticket> | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [limit] = useState(10);
+    const [offset, setOffset] = useState(0);
 
     useEffect(() => {
         async function loadTickets() {
+            setError("");
+            setLoading(true);
+
             try {
                 const response = await api.get<PagedResult<Ticket>>("/tickets", {
                     params: {
-                        pageNumber: 1,
-                        pageSize: 10,
+                        limit,
+                        offset,
                         sortBy: "createdAt",
                         sortDirection: "desc",
                     },
@@ -30,7 +35,7 @@ export function TicketsPage() {
         }
 
         void loadTickets();
-    }, []);
+    }, [limit, offset]);
 
     return (
         <div style={styles.page}>
@@ -51,38 +56,76 @@ export function TicketsPage() {
 
                 {result ? (
                     <>
+                        <div style={styles.paginationRow}>
+                            <button
+                                type="button"
+                                style={{
+                                    ...styles.paginationButton,
+                                    opacity: offset === 0 ? 0.5 : 1,
+                                    cursor: offset === 0 ? "not-allowed" : "pointer",
+                                }}
+                                onClick={() => setOffset((current) => Math.max(0, current - limit))}
+                                disabled={offset === 0}
+                            >
+                                Previous
+                            </button>
+
+                            <button
+                                type="button"
+                                style={{
+                                    ...styles.paginationButton,
+                                    opacity: !result || offset + limit >= result.totalCount ? 0.5 : 1,
+                                    cursor:
+                                        !result || offset + limit >= result.totalCount
+                                            ? "not-allowed"
+                                            : "pointer",
+                                }}
+                                onClick={() => {
+                                    if (result && offset + limit < result.totalCount) {
+                                        setOffset((current) => current + limit);
+                                    }
+                                }}
+                                disabled={!result || offset + limit >= result.totalCount}
+                            >
+                                Next
+                            </button>
+                        </div>
+
                         <div style={styles.metaCard}>
                             <p style={styles.text}>Total: {result.totalCount}</p>
-                            <p style={styles.text}>
-                                Page: {result.totalPages === 0 ? 0 : result.pageNumber} / {result.totalPages}
-                            </p>
+                            <p style={styles.text}>Limit: {result.limit ?? result.pageSize}</p>
+                            <p style={styles.text}>Offset: {result.offset ?? 0}</p>
                         </div>
 
                         <div style={styles.list}>
-                            {result.items.map((ticket) => (
-                                <div key={ticket.id} style={styles.ticketCard}>
-                                    <div style={styles.ticketTop}>
-                                        <h2 style={styles.ticketTitle}>{ticket.title}</h2>
-                                        <span style={styles.badge}>{ticket.status}</span>
-                                    </div>
-
-                                    <p style={styles.ticketDescription}>{ticket.description}</p>
-
-                                    <div style={styles.infoRow}>
-                                        <span style={styles.infoItem}>Priority: {ticket.priority}</span>
-                                        <span style={styles.infoItem}>Category: {ticket.categoryName}</span>
-                                        <span style={styles.infoItem}>
-                                            Assigned To: {ticket.assignedToUserId ?? "Unassigned"}
-                                        </span>
-                                    </div>
-                                </div>
-                            ))}
-
                             {result.items.length === 0 ? (
                                 <div style={styles.emptyCard}>
                                     <p style={styles.text}>No tickets found.</p>
                                 </div>
-                            ) : null}
+                            ) : (
+                                result.items.map((ticket) => (
+                                    <div key={ticket.id} style={styles.ticketCard}>
+                                        <div style={styles.ticketTop}>
+                                            <h2 style={styles.ticketTitle}>{ticket.title}</h2>
+                                            <span style={styles.badge}>{ticket.status}</span>
+                                        </div>
+
+                                        <p style={styles.ticketDescription}>{ticket.description}</p>
+
+                                        <div style={styles.infoRow}>
+                                            <span style={styles.infoItem}>
+                                                Priority: {ticket.priority}
+                                            </span>
+                                            <span style={styles.infoItem}>
+                                                Category: {ticket.categoryName}
+                                            </span>
+                                            <span style={styles.infoItem}>
+                                                Assigned To: {ticket.assignedToUserId ?? "Unassigned"}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </>
                 ) : null}
@@ -134,6 +177,19 @@ const styles: Record<string, CSSProperties> = {
         padding: "12px 16px",
         borderRadius: "12px",
         fontSize: "14px",
+    },
+    paginationRow: {
+        display: "flex",
+        gap: "12px",
+    },
+    paginationButton: {
+        border: "none",
+        backgroundColor: "#0f172a",
+        color: "#ffffff",
+        padding: "12px 16px",
+        borderRadius: "12px",
+        fontSize: "14px",
+        cursor: "pointer",
     },
     metaCard: {
         display: "flex",
