@@ -21,6 +21,87 @@ const priorityOptions = [
     { label: "Critical", value: "4" },
 ];
 
+function getStatusBadgeStyle(status: string): CSSProperties {
+    switch (status) {
+        case "Open":
+            return {
+                backgroundColor: "#dbeafe",
+                color: "#1d4ed8",
+            };
+        case "InProgress":
+            return {
+                backgroundColor: "#fef3c7",
+                color: "#b45309",
+            };
+        case "WaitingCustomer":
+            return {
+                backgroundColor: "#ede9fe",
+                color: "#6d28d9",
+            };
+        case "Resolved":
+            return {
+                backgroundColor: "#dcfce7",
+                color: "#15803d",
+            };
+        case "Closed":
+            return {
+                backgroundColor: "#e5e7eb",
+                color: "#374151",
+            };
+        default:
+            return {
+                backgroundColor: "#dbeafe",
+                color: "#1d4ed8",
+            };
+    }
+}
+
+function getPriorityBadgeStyle(priority: string): CSSProperties {
+    switch (priority) {
+        case "Low":
+            return {
+                backgroundColor: "#ecfdf5",
+                color: "#047857",
+                border: "1px solid #a7f3d0",
+            };
+        case "Medium":
+            return {
+                backgroundColor: "#eff6ff",
+                color: "#1d4ed8",
+                border: "1px solid #bfdbfe",
+            };
+        case "High":
+            return {
+                backgroundColor: "#fff7ed",
+                color: "#c2410c",
+                border: "1px solid #fdba74",
+            };
+        case "Critical":
+            return {
+                backgroundColor: "#fef2f2",
+                color: "#b91c1c",
+                border: "1px solid #fca5a5",
+            };
+        default:
+            return {
+                backgroundColor: "#f8fafc",
+                color: "#334155",
+                border: "1px solid #e2e8f0",
+            };
+    }
+}
+
+function formatStatusLabel(status: string): string {
+    switch (status) {
+        case "InProgress":
+            return "In Progress";
+        case "WaitingCustomer":
+            return "Waiting Customer";
+        default:
+            return status;
+    }
+}
+
 export function TicketsPage() {
     const [result, setResult] = useState<PagedResult<Ticket> | null>(null);
     const [loading, setLoading] = useState(true);
@@ -173,13 +254,25 @@ export function TicketsPage() {
                                     <div key={ticket.id} style={styles.ticketCard}>
                                         <div style={styles.ticketTop}>
                                             <h2 style={styles.ticketTitle}>{ticket.title}</h2>
-                                            <span style={styles.badge}>{ticket.status}</span>
+                                            <span 
+                                                style={{
+                                                    ...styles.badge,
+                                                    ...getStatusBadgeStyle(ticket.status),
+                                                }}
+                                            >
+                                                {formatStatusLabel(ticket.status)}
+                                            </span>
                                         </div>
 
                                         <p style={styles.ticketDescription}>{ticket.description}</p>
 
                                         <div style={styles.infoRow}>
-                                            <span style={styles.infoItem}>
+                                            <span 
+                                                style={{
+                                                    ...styles.infoItem,
+                                                    ...getPriorityBadgeStyle(ticket.priority),
+                                                }}
+                                            >
                                                 Priority: {ticket.priority}
                                             </span>
                                             <span style={styles.infoItem}>
@@ -318,8 +411,6 @@ const styles: Record<string, CSSProperties> = {
         color: "#0f172a",
     },
     badge: {
-        backgroundColor: "#dbeafe",
-        color: "#1d4ed8",
         borderRadius: "999px",
         padding: "6px 12px",
         fontSize: "12px",
