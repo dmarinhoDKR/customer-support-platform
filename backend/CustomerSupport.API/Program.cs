@@ -79,6 +79,8 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
+    dbContext.Database.Migrate();
+
     if (!dbContext.Roles.Any())
     { 
         dbContext.Roles.AddRange(
@@ -88,6 +90,18 @@ using (var scope = app.Services.CreateScope())
         
         );
     
+        dbContext.SaveChanges();
+    }
+
+    if (!dbContext.Categories.Any())
+    {
+        dbContext.Categories.AddRange(
+            new Category { Name = "Authentication", Description = "Login, acess, and identity issues." },
+            new Category { Name = "Billing", Description = "Payments, invoices, and subscription issues." },
+            new Category { Name = "Technical Support", Description = "Application errors and technical incidents." },
+            new Category { Name = "General Support", Description = "General customer services requests." }
+        );
+
         dbContext.SaveChanges();
     }
 

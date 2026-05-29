@@ -1,8 +1,25 @@
 import { useEffect, useState } from "react";
-import type { CSSProperties } from "react";
+import type { ChangeEvent, CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../services/api";
 import type { PagedResult, Ticket } from "../types/ticket";
+
+const statusOptions = [
+    { label: "All Statuses", value: "" },
+    { label: "Open", value: "1" },
+    { label: "In Progress", value: "2" },
+    { label: "Waiting Customer", value: "3" },
+    { label: "Resolved", value: "4" },
+    { label: "Closed", value: "5" },
+];
+
+const priorityOptions = [
+    { label: "All Priorities", value: "" },
+    { label: "Low", value: "1" },
+    { label: "Medium", value: "2" },
+    { label: "High", value: "3" },
+    { label: "Critical", value: "4" },
+];
 
 export function TicketsPage() {
     const [result, setResult] = useState<PagedResult<Ticket> | null>(null);
@@ -10,6 +27,8 @@ export function TicketsPage() {
     const [error, setError] = useState("");
     const [limit] = useState(10);
     const [offset, setOffset] = useState(0);
+    const [status, setStatus] = useState("");
+    const [priority, setPriority] = useState("");
 
     useEffect(() => {
         async function loadTickets() {
@@ -23,6 +42,8 @@ export function TicketsPage() {
                         offset,
                         sortBy: "createdAt",
                         sortDirection: "desc",
+                        status: status === "" ? undefined : Number(status),
+                        priority: priority === "" ? undefined : Number(priority),
                     },
                 });
 
@@ -35,7 +56,17 @@ export function TicketsPage() {
         }
 
         void loadTickets();
-    }, [limit, offset]);
+    }, [limit, offset, status, priority]);
+
+    function handleStatusChange(event: ChangeEvent<HTMLSelectElement>) {
+        setStatus(event.target.value);
+        setOffset(0);
+    }
+
+    function handlePriorityChange(event: ChangeEvent<HTMLSelectElement>) {
+        setPriority(event.target.value);
+        setOffset(0);
+    }
 
     return (
         <div style={styles.page}>
@@ -49,6 +80,44 @@ export function TicketsPage() {
                     <Link to="/dashboard" style={styles.linkButton}>
                         Back to Dashboard
                     </Link>
+                </div>
+
+                <div style={styles.filterCard}>
+                    <div style={styles.filterGroup}>
+                        <label htmlFor="status-filter" style={styles.filterLabel}>
+                            Status
+                        </label>
+                        <select
+                            id="status-filter"
+                            value={status}
+                            onChange={handleStatusChange}
+                            style={styles.select}
+                        >
+                            {statusOptions.map((option) => (
+                                <option key={option.label} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div style={styles.filterGroup}>
+                        <label htmlFor="priority-filter" style={styles.filterLabel}>
+                            Priority
+                        </label>
+                        <select
+                            id="priority-filter"
+                            value={priority}
+                            onChange={handlePriorityChange}
+                            style={styles.select}
+                        >
+                            {priorityOptions.map((option) => (
+                                <option key={option.label} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
                 {loading ? <p style={styles.text}>Loading tickets...</p> : null}
@@ -74,18 +143,15 @@ export function TicketsPage() {
                                 type="button"
                                 style={{
                                     ...styles.paginationButton,
-                                    opacity: !result || offset + limit >= result.totalCount ? 0.5 : 1,
-                                    cursor:
-                                        !result || offset + limit >= result.totalCount
-                                            ? "not-allowed"
-                                            : "pointer",
+                                    opacity: offset + limit >= result.totalCount ? 0.5 : 1,
+                                    cursor: offset + limit >= result.totalCount ? "not-allowed" : "pointer",
                                 }}
                                 onClick={() => {
-                                    if (result && offset + limit < result.totalCount) {
+                                    if (offset + limit < result.totalCount) {
                                         setOffset((current) => current + limit);
                                     }
                                 }}
-                                disabled={!result || offset + limit >= result.totalCount}
+                                disabled={offset + limit >= result.totalCount}
                             >
                                 Next
                             </button>
@@ -177,6 +243,34 @@ const styles: Record<string, CSSProperties> = {
         padding: "12px 16px",
         borderRadius: "12px",
         fontSize: "14px",
+    },
+    filterCard: {
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "16px",
+        backgroundColor: "#ffffff",
+        borderRadius: "20px",
+        padding: "20px 24px",
+        boxShadow: "0 20px 50px rgba(0, 0, 0, 0.25)",
+    },
+    filterGroup: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "8px",
+        minWidth: "220px",
+    },
+    filterLabel: {
+        fontSize: "14px",
+        fontWeight: 600,
+        color: "#334155",
+    },
+    select: {
+        border: "1px solid #cbd5e1",
+        borderRadius: "12px",
+        padding: "12px 14px",
+        fontSize: "14px",
+        color: "#0f172a",
+        backgroundColor: "#ffffff",
     },
     paginationRow: {
         display: "flex",
