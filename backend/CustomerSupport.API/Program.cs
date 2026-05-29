@@ -35,13 +35,27 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+}
+
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException("DefaultConnection was not configured.");
+}
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        var key = builder.Configuration["Jwt:Key"] ?? string.Empty;
+        var key = builder.Configuration["Jwt:Key"]
+        ?? Environment.GetEnvironmentVariable("Jwt__Key")
+        ?? string.Empty;
         var issuer = builder.Configuration["Jwt:Issuer"];
         var audience = builder.Configuration["Jwt:Audience"];
 
@@ -96,10 +110,10 @@ using (var scope = app.Services.CreateScope())
     if (!dbContext.Categories.Any())
     {
         dbContext.Categories.AddRange(
-            new Category { Name = "Authentication", Description = "Login, acess, and identity issues." },
+            new Category { Name = "Authentication", Description = "Login, access, and identity issues." },
             new Category { Name = "Billing", Description = "Payments, invoices, and subscription issues." },
             new Category { Name = "Technical Support", Description = "Application errors and technical incidents." },
-            new Category { Name = "General Support", Description = "General customer services requests." }
+            new Category { Name = "General Support", Description = "General customer service requests." }
         );
 
         dbContext.SaveChanges();

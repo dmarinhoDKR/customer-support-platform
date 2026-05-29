@@ -35,6 +35,7 @@ This project simulates a real-world support system with authentication, dashboar
 - JWT authentication with protected routes
 - SQL Server running in Docker with persistent volume
 - WSL-based Linux development environment
+- backend configuration via environment variables for local secrets
 
 ## Current Features
 
@@ -44,22 +45,39 @@ This project simulates a real-world support system with authentication, dashboar
 - ticket listing
 - filtering and sorting
 - pagination with `pageNumber/pageSize` and `limit/offset`
+- visual status and priority badges
 - ticket comments
 - ticket assignment
 - ticket status history
 - SQL Server running in Docker with persistent volume
+- automatic database migration on backend startup
 
 ## Run Locally
 
-### Database
+### 1. Create your local environment file
+
 From the project root:
 
 ```bash
+cp .env.example .env
+```
+
+Update `.env` with your local development values.
+
+### 2. Start the database
+
+From the project root:
+
+```bash
+set -a
+source .env
+set +a
 docker compose up -d
 ```
 
-### Backend
-From `backend`:
+### 3. Run the backend
+
+From `backend`, in the same shell session used to load `.env`:
 
 ```bash
 dotnet run --project ./CustomerSupport.API/CustomerSupport.API.csproj
@@ -68,7 +86,8 @@ dotnet run --project ./CustomerSupport.API/CustomerSupport.API.csproj
 API:
 - http://localhost:5132/swagger
 
-### Frontend
+### 4. Run the frontend
+
 From `frontend`:
 
 ```bash
@@ -85,10 +104,15 @@ Frontend:
 - Agent: `agent@customersupport.com` / `admin123`
 - Customer: `customer@customersupport.com` / `admin123`
 
+## Notes
+
+- Local secrets are stored in `.env`, which is ignored by Git.
+- The repository includes `.env.example` as a configuration template.
+- The backend applies migrations automatically on startup.
+
 ## Roadmap
 
-- frontend ticket filters
 - improved login error handling
+- frontend ticket creation
 - backend API containerization
-- Docker healthcheck
 - UI refinements
