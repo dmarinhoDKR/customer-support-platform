@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { DashboardPage } from "../pages/DashboardPage";
 import { LoginPage } from "../pages/LoginPage";
+import { TicketDetailsPage } from "../pages/TicketDetailsPage";
 import { TicketsPage } from "../pages/TicketsPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 
@@ -23,6 +24,14 @@ export function AppRouter() {
                 element={
                     <ProtectedRoute>
                         <TicketsPage />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/tickets/:id"
+                element={
+                    <ProtectedRoute>
+                        <TicketDetailsPage />
                     </ProtectedRoute>
                 }
             />

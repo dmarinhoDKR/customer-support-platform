@@ -102,6 +102,14 @@ function formatStatusLabel(status: string): string {
     }
 }
 
+function formatAssignedUserLabel(name?: string | null): string {
+    if (!name) {
+        return "Unassigned";
+    }
+
+    return name.endsWith(" User") ? name.replace(/ User$/, "") : name;
+}
+
 export function TicketsPage() {
     const [result, setResult] = useState<PagedResult<Ticket> | null>(null);
     const [loading, setLoading] = useState(true);
@@ -251,38 +259,44 @@ export function TicketsPage() {
                                 </div>
                             ) : (
                                 result.items.map((ticket) => (
-                                    <div key={ticket.id} style={styles.ticketCard}>
-                                        <div style={styles.ticketTop}>
-                                            <h2 style={styles.ticketTitle}>{ticket.title}</h2>
-                                            <span 
-                                                style={{
-                                                    ...styles.badge,
-                                                    ...getStatusBadgeStyle(ticket.status),
-                                                }}
-                                            >
-                                                {formatStatusLabel(ticket.status)}
-                                            </span>
-                                        </div>
+                                    <Link
+                                        key={ticket.id}
+                                        to={`/tickets/${ticket.id}`}
+                                        style={styles.ticketCardLink}
+                                    >
+                                        <div style={styles.ticketCard}>
+                                            <div style={styles.ticketTop}>
+                                                <h2 style={styles.ticketTitle}>{ticket.title}</h2>
+                                                <span 
+                                                    style={{
+                                                        ...styles.badge,
+                                                        ...getStatusBadgeStyle(ticket.status),
+                                                    }}
+                                                >
+                                                    {formatStatusLabel(ticket.status)}
+                                                </span>
+                                            </div>
 
-                                        <p style={styles.ticketDescription}>{ticket.description}</p>
+                                            <p style={styles.ticketDescription}>{ticket.description}</p>
 
-                                        <div style={styles.infoRow}>
-                                            <span 
-                                                style={{
-                                                    ...styles.infoItem,
-                                                    ...getPriorityBadgeStyle(ticket.priority),
-                                                }}
-                                            >
-                                                Priority: {ticket.priority}
-                                            </span>
-                                            <span style={styles.infoItem}>
-                                                Category: {ticket.categoryName}
-                                            </span>
-                                            <span style={styles.infoItem}>
-                                                Assigned To: {ticket.assignedToUserId ?? "Unassigned"}
-                                            </span>
+                                            <div style={styles.infoRow}>
+                                                <span 
+                                                    style={{
+                                                        ...styles.infoItem,
+                                                        ...getPriorityBadgeStyle(ticket.priority),
+                                                    }}
+                                                >
+                                                    Priority: {ticket.priority}
+                                                </span>
+                                                <span style={styles.infoItem}>
+                                                    Category: {ticket.categoryName}
+                                                </span>
+                                                <span style={styles.infoItem}>
+                                                    Assigned To: {formatAssignedUserLabel(ticket.assignedToUserName)}
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </Link>
                                 ))
                             )}
                         </div>
@@ -397,6 +411,10 @@ const styles: Record<string, CSSProperties> = {
         borderRadius: "20px",
         padding: "24px",
         boxShadow: "0 20px 50px rgba(0, 0, 0, 0.2)",
+    },
+    ticketCardLink: {
+        textDecoration: "none",
+        display: "block",
     },
     ticketTop: {
         display: "flex",
