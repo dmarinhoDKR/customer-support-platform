@@ -1,12 +1,12 @@
 export interface LoginRequest {
-    email: string;
-    password: string;
+  email: string;
+  password: string;
 }
 
 export interface AuthResponse {
-    token: string;
-    expiresAt: string;
-    fullName: string;
-    email: string;
-    role: string;
+  token: string;
+  expiresAt: string;
+  fullName: string;
+  email: string;
+  role: string;
 }

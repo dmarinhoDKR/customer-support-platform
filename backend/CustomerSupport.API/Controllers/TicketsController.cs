@@ -25,6 +25,7 @@ public class TicketsController : ControllerBase
     {
         var query = _context.Tickets
             .Include(x => x.Category)
+            .Include(x => x.AssignedToUser)
             .AsQueryable();
 
         if (filter.Status.HasValue)
@@ -105,6 +106,7 @@ public class TicketsController : ControllerBase
                 CategoryName = x.Category != null ? x.Category.Name : string.Empty,
                 CreatedByUserId = x.CreatedByUserId,
                 AssignedToUserId = x.AssignedToUserId,
+                AssignedToUserName = x.AssignedToUser != null ? x.AssignedToUser.FullName : null,
                 CreatedAt = x.CreatedAt,
                 UpdatedAt = x.UpdatedAt
             })
@@ -129,6 +131,7 @@ public class TicketsController : ControllerBase
     {
         var ticket = await _context.Tickets
             .Include(x => x.Category)
+            .Include(x => x.AssignedToUser)
             .Where(x => x.Id == id)
             .Select(x => new TicketDto
             {
@@ -141,6 +144,7 @@ public class TicketsController : ControllerBase
                 CategoryName = x.Category != null ? x.Category.Name : string.Empty,
                 CreatedByUserId = x.CreatedByUserId,
                 AssignedToUserId = x.AssignedToUserId,
+                AssignedToUserName = x.AssignedToUser != null ? x.AssignedToUser.FullName : null,
                 CreatedAt = x.CreatedAt,
                 UpdatedAt = x.UpdatedAt
             })
@@ -223,6 +227,7 @@ public class TicketsController : ControllerBase
     {
         var ticket = await _context.Tickets
             .Include(x => x.Category)
+            .Include(x => x.AssignedToUser)
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (ticket is null)
@@ -264,6 +269,7 @@ public class TicketsController : ControllerBase
             CategoryName = ticket.Category != null ? ticket.Category.Name : string.Empty,
             CreatedByUserId = ticket.CreatedByUserId,
             AssignedToUserId = ticket.AssignedToUserId,
+            AssignedToUserName = ticket.AssignedToUser != null ? ticket.AssignedToUser.FullName : null,
             CreatedAt = ticket.CreatedAt,
             UpdatedAt = ticket.UpdatedAt
         };
@@ -276,6 +282,7 @@ public class TicketsController : ControllerBase
     {
         var ticket = await _context.Tickets
             .Include(x => x.Category)
+            .Include(x => x.AssignedToUser)
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (ticket is null)
@@ -310,6 +317,7 @@ public class TicketsController : ControllerBase
             CategoryName = ticket.Category != null ? ticket.Category.Name : string.Empty,
             CreatedByUserId = ticket.CreatedByUserId,
             AssignedToUserId = ticket.AssignedToUserId,
+            AssignedToUserName = assignedUser.FullName,
             CreatedAt = ticket.CreatedAt,
             UpdatedAt = ticket.UpdatedAt
         };
@@ -381,6 +389,7 @@ public class TicketsController : ControllerBase
 
         var createdTicket = await _context.Tickets
             .Include(x => x.Category)
+            .Include(x => x.AssignedToUser)
             .Where(x => x.Id == ticket.Id)
             .Select(x => new TicketDto
             {
@@ -393,6 +402,7 @@ public class TicketsController : ControllerBase
                 CategoryName = x.Category != null ? x.Category.Name : string.Empty,
                 CreatedByUserId = x.CreatedByUserId,
                 AssignedToUserId = x.AssignedToUserId,
+                AssignedToUserName = x.AssignedToUser != null ? x.AssignedToUser.FullName : null,
                 CreatedAt = x.CreatedAt,
                 UpdatedAt = x.UpdatedAt
             })

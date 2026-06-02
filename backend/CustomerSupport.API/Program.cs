@@ -39,7 +39,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 if (string.IsNullOrWhiteSpace(connectionString))
 {
-    connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+    connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") 
+        ?? Environment.GetEnvironmentVariable("DefaultConnection");
 }
 
 if (string.IsNullOrWhiteSpace(connectionString))
@@ -53,9 +54,18 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        var key = builder.Configuration["Jwt:Key"]
-        ?? Environment.GetEnvironmentVariable("Jwt__Key")
-        ?? string.Empty;
+        var key = builder.Configuration["Jwt:Key"];
+
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            key = Environment.GetEnvironmentVariable("JWT_KEY");
+        }
+
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            throw new InvalidOperationException("JWT_KEY was not configured.");
+        }
+        
         var issuer = builder.Configuration["Jwt:Issuer"];
         var audience = builder.Configuration["Jwt:Audience"];
 

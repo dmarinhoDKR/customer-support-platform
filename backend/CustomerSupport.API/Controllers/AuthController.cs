@@ -41,6 +41,12 @@ public class AuthController : ControllerBase
             return StatusCode(500, "User role is not assigned.");
 
         var key = _configuration["Jwt:Key"];
+
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            key = Environment.GetEnvironmentVariable("JWT_KEY");
+        }
+
         var issuer = _configuration["Jwt:Issuer"];
         var audience = _configuration["Jwt:Audience"];
 

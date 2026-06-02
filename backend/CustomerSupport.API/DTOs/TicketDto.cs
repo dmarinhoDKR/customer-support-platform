@@ -11,6 +11,7 @@ public class TicketDto
     public string CategoryName { get; set; } = string.Empty;
     public int CreatedByUserId { get; set; }
     public int? AssignedToUserId { get; set; }
+    public string? AssignedToUserName { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }
