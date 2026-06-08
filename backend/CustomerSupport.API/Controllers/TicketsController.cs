@@ -26,6 +26,7 @@ public class TicketsController : ControllerBase
         var query = _context.Tickets
             .Include(x => x.Category)
             .Include(x => x.AssignedToUser)
+            .Include(x => x.CreatedByUser)
             .AsQueryable();
 
         if (filter.Status.HasValue)
@@ -105,6 +106,7 @@ public class TicketsController : ControllerBase
                 CategoryId = x.CategoryId,
                 CategoryName = x.Category != null ? x.Category.Name : string.Empty,
                 CreatedByUserId = x.CreatedByUserId,
+                CreatedByUserName = x.CreatedByUser != null ? x.CreatedByUser.FullName : string.Empty,
                 AssignedToUserId = x.AssignedToUserId,
                 AssignedToUserName = x.AssignedToUser != null ? x.AssignedToUser.FullName : null,
                 CreatedAt = x.CreatedAt,
@@ -132,6 +134,7 @@ public class TicketsController : ControllerBase
         var ticket = await _context.Tickets
             .Include(x => x.Category)
             .Include(x => x.AssignedToUser)
+            .Include(x => x.CreatedByUser)
             .Where(x => x.Id == id)
             .Select(x => new TicketDto
             {
@@ -143,6 +146,7 @@ public class TicketsController : ControllerBase
                 CategoryId = x.CategoryId,
                 CategoryName = x.Category != null ? x.Category.Name : string.Empty,
                 CreatedByUserId = x.CreatedByUserId,
+                CreatedByUserName = x.CreatedByUser != null ? x.CreatedByUser.FullName : string.Empty,
                 AssignedToUserId = x.AssignedToUserId,
                 AssignedToUserName = x.AssignedToUser != null ? x.AssignedToUser.FullName : null,
                 CreatedAt = x.CreatedAt,
@@ -228,6 +232,7 @@ public class TicketsController : ControllerBase
         var ticket = await _context.Tickets
             .Include(x => x.Category)
             .Include(x => x.AssignedToUser)
+            .Include(x => x.CreatedByUser)
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (ticket is null)
@@ -268,6 +273,7 @@ public class TicketsController : ControllerBase
             CategoryId = ticket.CategoryId,
             CategoryName = ticket.Category != null ? ticket.Category.Name : string.Empty,
             CreatedByUserId = ticket.CreatedByUserId,
+            CreatedByUserName = ticket.CreatedByUser != null ? ticket.CreatedByUser.FullName : string.Empty,
             AssignedToUserId = ticket.AssignedToUserId,
             AssignedToUserName = ticket.AssignedToUser != null ? ticket.AssignedToUser.FullName : null,
             CreatedAt = ticket.CreatedAt,
@@ -283,6 +289,7 @@ public class TicketsController : ControllerBase
         var ticket = await _context.Tickets
             .Include(x => x.Category)
             .Include(x => x.AssignedToUser)
+            .Include(x => x.CreatedByUser)
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (ticket is null)
@@ -316,6 +323,7 @@ public class TicketsController : ControllerBase
             CategoryId = ticket.CategoryId,
             CategoryName = ticket.Category != null ? ticket.Category.Name : string.Empty,
             CreatedByUserId = ticket.CreatedByUserId,
+            CreatedByUserName = ticket.CreatedByUser != null ? ticket.CreatedByUser.FullName : string.Empty,
             AssignedToUserId = ticket.AssignedToUserId,
             AssignedToUserName = assignedUser.FullName,
             CreatedAt = ticket.CreatedAt,
@@ -390,6 +398,7 @@ public class TicketsController : ControllerBase
         var createdTicket = await _context.Tickets
             .Include(x => x.Category)
             .Include(x => x.AssignedToUser)
+            .Include(x => x.CreatedByUser)
             .Where(x => x.Id == ticket.Id)
             .Select(x => new TicketDto
             {
@@ -401,6 +410,7 @@ public class TicketsController : ControllerBase
                 CategoryId = x.CategoryId,
                 CategoryName = x.Category != null ? x.Category.Name : string.Empty,
                 CreatedByUserId = x.CreatedByUserId,
+                CreatedByUserName = x.CreatedByUser != null ? x.CreatedByUser.FullName : string.Empty,
                 AssignedToUserId = x.AssignedToUserId,
                 AssignedToUserName = x.AssignedToUser != null ? x.AssignedToUser.FullName : null,
                 CreatedAt = x.CreatedAt,

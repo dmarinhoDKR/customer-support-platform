@@ -97,9 +97,9 @@ function formatAssignedUserLabel(name?: string | null): string {
   return name.endsWith(" User") ? name.replace(/ User$/, "") : name;
 }
 
-function formatDateTime(value?: string | null): string {
+function formatDateTime(value?: string | null, emptyLabel = "Not updated yet"): string {
   if (!value) {
-    return "N/A";
+    return emptyLabel;
   }
 
   return new Date(value).toLocaleString();
@@ -205,10 +205,10 @@ export function TicketDetailsPage() {
                   {formatAssignedUserLabel(ticket.assignedToUserName)}
                 </span>
                 <span style={styles.infoItem}>
-                  Created By: {ticket.createdByUserId}
+                  Created By: {formatAssignedUserLabel(ticket.createdByUserName)}
                 </span>
                 <span style={styles.infoItem}>
-                  Created At: {formatDateTime(ticket.createdAt)}
+                  Created At: {formatDateTime(ticket.createdAt, "Unknown")}
                 </span>
                 <span style={styles.infoItem}>
                   Updated At: {formatDateTime(ticket.updatedAt)}

@@ -10,6 +10,7 @@ public class TicketDto
     public int CategoryId { get; set; }
     public string CategoryName { get; set; } = string.Empty;
     public int CreatedByUserId { get; set; }
+    public string CreatedByUserName { get; set; } = string.Empty;
     public int? AssignedToUserId { get; set; }
     public string? AssignedToUserName { get; set; }
     public DateTime CreatedAt { get; set; }

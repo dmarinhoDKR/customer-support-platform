@@ -7,6 +7,7 @@ export interface Ticket {
   categoryId: number;
   categoryName: string;
   createdByUserId: number;
+  createdByUserName: string;
   assignedToUserId: number | null;
   assignedToUserName?: string | null;
   createdAt: string;
