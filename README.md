@@ -4,7 +4,29 @@ Customer support and ticket management platform built with React, ASP.NET Core W
 
 ## Overview
 
-This project simulates a real-world support system with authentication, dashboard metrics, ticket management, and paginated data access.
+This project simulates a real-world customer support workflow with authentication, dashboard metrics, ticket creation, ticket details, comments, status history, and paginated data access.
+
+## Screenshots
+
+### Login
+Authentication screen for platform access.
+
+![Login page](docs/screenshots/login-page.png)
+
+### Dashboard
+Overview of ticket metrics and user session information.
+
+![Dashboard page](docs/screenshots/dashboard-page.png)
+
+### Tickets
+Ticket listing with filtering, pagination, and ticket creation form.
+
+![Tickets page](docs/screenshots/tickets-page.png)
+
+### Ticket Details
+Detailed ticket view with metadata, comments, and status history.
+
+![Ticket details page](docs/screenshots/ticket-details-page.png)
 
 ## Tech Stack
 
@@ -33,24 +55,28 @@ This project simulates a real-world support system with authentication, dashboar
 
 - Full-stack application with React frontend and ASP.NET Core Web API backend
 - JWT authentication with protected routes
+- Ticket creation, listing, filtering, and detailed ticket views
+- Ticket comments, assignment, and status history
 - SQL Server running in Docker with persistent volume
 - WSL-based Linux development environment
-- backend configuration via environment variables for local secrets
+- Backend configuration via environment variables for local secrets
 
 ## Current Features
 
 - JWT-based authentication
-- protected frontend routes
-- dashboard summary
-- ticket listing
-- filtering and sorting
-- pagination with `pageNumber/pageSize` and `limit/offset`
-- visual status and priority badges
-- ticket comments
-- ticket assignment
-- ticket status history
+- Protected frontend routes
+- Dashboard summary
+- Ticket creation
+- Ticket listing
+- Filtering and sorting
+- Pagination with `pageNumber/pageSize` and `limit/offset`
+- Visual status and priority badges
+- Ticket details page
+- Ticket comments
+- Ticket assignment
+- Ticket status history
 - SQL Server running in Docker with persistent volume
-- automatic database migration on backend startup
+- Automatic database migration on backend startup
 
 ## Run Locally
 
@@ -77,11 +103,11 @@ docker compose up -d
 
 ### 3. Run the backend
 
-From `backend`, in the same shell session used to load `.env`:
+From the `backend` folder, in the same shell session used to load `.env`:
 
 ```bash
+cd backend
 dotnet run --project ./CustomerSupport.API/CustomerSupport.API.csproj
-```
 
 API:
 - http://localhost:5132/swagger
@@ -112,7 +138,6 @@ Frontend:
 
 ## Roadmap
 
-- improved login error handling
-- frontend ticket creation
-- backend API containerization
+- Improved login error handling
+- Backend API containerization
 - UI refinements

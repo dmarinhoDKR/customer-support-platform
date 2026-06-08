@@ -122,17 +122,13 @@ export function DashboardPage() {
 const styles: Record<string, CSSProperties> = {
   page: {
     minHeight: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    background:
-      "linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(30, 41, 59) 100%)",
+    background: "linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(30, 41, 59) 100%)",
     padding: "40px 24px",
   },
   card: {
-    width: "100%",
     backgroundColor: "#ffffff",
     borderRadius: "20px",
-    padding: "32px",
+    padding: "28px 32px",
     boxShadow: "0 20px 50px rgba(0, 0, 0, 0.25)",
   },
   title: {
@@ -191,7 +187,8 @@ const styles: Record<string, CSSProperties> = {
   },
   wrapper: {
     width: "100%",
-    maxWidth: "980px",
+    maxWidth: "1100px",
+    margin: "0 auto",
     display: "flex",
     flexDirection: "column",
     gap: "24px",
