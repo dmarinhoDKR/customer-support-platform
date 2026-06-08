@@ -1,6 +1,6 @@
 # Customer Support Platform
 
-Customer support and ticket management platform built with React, ASP.NET Core Web API, SQL Server, and Docker.
+Customer Support Platform is a full-stack ticket management application built with React, ASP.NET Core Web API, SQL Server, and Docker. The project includes JWT authentication, dashboard metrics, ticket creation, filtering, detailed ticket views, comments, assignment, and status history, simulating a real-world customer support workflow.
 
 ## Overview
 
