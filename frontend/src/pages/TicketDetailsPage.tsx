@@ -227,7 +227,7 @@ export function TicketDetailsPage() {
                     <div key={comment.id} style={styles.listItem}>
                       <div style={styles.listItemHeader}>
                         <strong style={styles.listItemTitle}>
-                          {comment.userName}
+                          {formatAssignedUserLabel(comment.userName)}
                         </strong>
                         <span style={styles.metaText}>
                           {formatDateTime(comment.createdAt)}
