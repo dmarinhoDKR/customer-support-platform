@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import type { ChangeEvent, CSSProperties } from "react";
+import type { ChangeEvent, CSSProperties, FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../services/api";
-import type { PagedResult, Ticket } from "../types/ticket";
+import type { Category, CreateTicketRequest, PagedResult, Ticket } from "../types/ticket";
 
 const statusOptions = [
     { label: "All Statuses", value: "" },
@@ -110,42 +110,87 @@ function formatAssignedUserLabel(name?: string | null): string {
     return name.endsWith(" User") ? name.replace(/ User$/, "") : name;
 }
 
+function getUserIdFromToken(): number | null {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        return null;
+    }
+
+    try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const rawUserId = 
+            payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] ??
+            payload.nameid ??
+            payload.sub;
+
+        if (!rawUserId) {
+            return null;
+        }
+
+        const userId = Number(rawUserId);
+        return Number.isNaN(userId) ? null : userId;
+    }   catch {
+        return null;
+    }
+}
+
 export function TicketsPage() {
     const [result, setResult] = useState<PagedResult<Ticket> | null>(null);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [createError, setCreateError] = useState("");
+    const [creating, setCreating] = useState(false);
     const [limit] = useState(10);
     const [offset, setOffset] = useState(0);
     const [status, setStatus] = useState("");
     const [priority, setPriority] = useState("");
+    const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
+    const [categoryId, setCategoryId] = useState("");
+    const [createPriority, setCreatePriority] = useState("2");
+
+    async function loadTickets() {
+        setError("");
+        setLoading(true);
+
+        try {
+            const response = await api.get<PagedResult<Ticket>>("/tickets", {
+                params: {
+                    limit,
+                    offset,
+                    sortBy: "createdAt",
+                    sortDirection: "desc",
+                    status: status === "" ? undefined : Number(status),
+                    priority: priority === "" ? undefined : Number(priority),
+                },
+            });
+
+            setResult(response.data);
+        }   catch {
+            setError("Could not load tickets. Please try again later.");
+        }   finally {
+            setLoading(false);
+        }
+    }
 
     useEffect(() => {
-        async function loadTickets() {
-            setError("");
-            setLoading(true);
+        void loadTickets();
+    }, [limit, offset, status, priority]);
 
+    useEffect(() => {
+        async function loadCategories() {
             try {
-                const response = await api.get<PagedResult<Ticket>>("/tickets", {
-                    params: {
-                        limit,
-                        offset,
-                        sortBy: "createdAt",
-                        sortDirection: "desc",
-                        status: status === "" ? undefined : Number(status),
-                        priority: priority === "" ? undefined : Number(priority),
-                    },
-                });
-
-                setResult(response.data);
-            } catch {
-                setError("Could not load tickets.");
-            } finally {
-                setLoading(false);
+                const response = await api.get<Category[]>("/categories");
+                setCategories(response.data);
+            }   catch {
+                setCreateError("Could not load categories. Please refresh the page.");
             }
         }
 
-        void loadTickets();
-    }, [limit, offset, status, priority]);
+        void loadCategories();
+    }, []);
 
     function handleStatusChange(event: ChangeEvent<HTMLSelectElement>) {
         setStatus(event.target.value);
@@ -155,6 +200,49 @@ export function TicketsPage() {
     function handlePriorityChange(event: ChangeEvent<HTMLSelectElement>) {
         setPriority(event.target.value);
         setOffset(0);
+    }
+
+    async function handleCreateTicket(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        setCreateError("");
+
+        const createdByUserId = getUserIdFromToken();
+
+        if (!createdByUserId) {
+            setCreateError("You must be logged in to create a ticket.");
+            return;
+        }
+
+        if (!title.trim() || !description.trim() || !categoryId) {
+            setCreateError("Please fill in title, description and category.");
+            return;
+        }
+
+        setCreating(true);
+
+        try {
+            const payload: CreateTicketRequest = {
+                title: title.trim(),
+                description: description.trim(),
+                categoryId: Number(categoryId),
+                createdByUserId,
+                assignedToUserId: null,
+                priority: Number(createPriority),
+            };
+
+            await api.post("/tickets", payload);
+
+            setTitle("");
+            setDescription("");
+            setCategoryId("");
+            setCreatePriority("2");
+
+            await loadTickets();
+        }   catch {
+            setCreateError("Could not create ticket. Please try again later.");
+        }   finally {
+            setCreating(false);
+        }
     }
 
     return (
@@ -169,6 +257,74 @@ export function TicketsPage() {
                     <Link to="/dashboard" style={styles.linkButton}>
                         Back to Dashboard
                     </Link>
+                </div>
+
+                <div style={styles.createCard}>
+                    <h2 style={styles.sectionTitle}>Create Ticket</h2>
+
+                    <form onSubmit={handleCreateTicket} style={styles.form}>
+                        <input
+                            type="text"
+                            placeholder="Title"
+                            value={title}
+                            onChange={(event) => setTitle(event.target.value)}
+                            style={styles.input}
+                        />
+
+                        <textarea
+                            placeholder="Describe the issue"
+                            value={description}
+                            onChange={(event) => setDescription(event.target.value)}
+                            style={styles.textarea}
+                        />
+
+                        <div style={styles.formRow}>
+                            <div style={styles.filterGroup}>
+                                <label htmlFor="category-select" style={styles.filterLabel}>
+                                    Category
+                                </label>
+                                <select
+                                    id="category-select"
+                                    value={categoryId}
+                                    onChange={(event) => setCategoryId(event.target.value)}
+                                    style={styles.select}
+                                >
+                                    <option value="">Select category</option>
+                                    {categories.map((category) => (
+                                        <option key={category.id} value={category.id}>
+                                            {category.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div style={styles.filterGroup}>
+                                <label htmlFor="priority-select" style={styles.filterLabel}>
+                                    Priority
+                                </label>
+                                <select
+                                    id="priority-select"
+                                    value={createPriority}
+                                    onChange={(event) => setCreatePriority(event.target.value)}
+                                    style={styles.select}
+                                >
+                                    {priorityOptions
+                                      .filter((option) => option.value !== "")
+                                      .map((option) => (
+                                        <option key={option.label} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                      ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        {createError ? <p style={styles.error}>{createError}</p> : null}
+
+                        <button type="submit" style={styles.submitButton} disabled={creating}>
+                            {creating ? "Creating..." : "Create Ticket"}
+                        </button>
+                    </form>
                 </div>
 
                 <div style={styles.filterCard}>
@@ -343,6 +499,12 @@ const styles: Record<string, CSSProperties> = {
         color: "#475569",
         fontSize: "16px",
     },
+    sectionTitle: {
+        margin: 0,
+        marginBottom: "16px",
+        fontSize: "24px",
+        color: "#0f172a",
+    },
     linkButton: {
         textDecoration: "none",
         backgroundColor: "#0f172a",
@@ -350,6 +512,50 @@ const styles: Record<string, CSSProperties> = {
         padding: "12px 16px",
         borderRadius: "12px",
         fontSize: "14px",
+    },
+    createCard: {
+        backgroundColor: "#ffffff",
+        borderRadius: "20px",
+        padding: "24px",
+        boxShadow: "0 20px 50px rgba(0, 0, 0, 0.25)",
+    },
+    form: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "16px",
+    },
+    formRow: {
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "16px",
+    },
+    input: {
+        border: "1px solid #cbd5e1",
+        borderRadius: "12px",
+        padding: "12px 14px",
+        fontSize: "14px",
+        color: "#0f172a",
+        backgroundColor: "#ffffff",
+    },
+    textarea: {
+        minHeight: "120px",
+        border: "1px solid #cbd5e1",
+        borderRadius: "12px",
+        padding: "12px 14px",
+        fontSize: "14px",
+        color: "#0f172a",
+        backgroundColor: "#ffffff",
+        resize: "vertical",
+    },
+    submitButton: {
+        border: "none",
+        backgroundColor: "#0f172a",
+        color: "#ffffff",
+        padding: "12px 16px",
+        borderRadius: "12px",
+        fontSize: "14px",
+        cursor: "pointer",
+        alignSelf: "flex-start",
     },
     filterCard: {
         display: "flex",

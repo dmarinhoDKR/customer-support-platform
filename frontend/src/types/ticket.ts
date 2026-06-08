@@ -43,3 +43,18 @@ export interface TicketStatusHistoryItem {
   changedByUserName: string;
   changedAt: string;
 }
+
+export interface Category {
+  id: number;
+  name: string;
+  description: string;
+}
+
+export interface CreateTicketRequest {
+  title: string;
+  description: string;
+  categoryId: number;
+  createdByUserId: number;
+  assignedToUserId: number | null;
+  priority: number;
+}
