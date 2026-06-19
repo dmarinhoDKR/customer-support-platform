@@ -1,6 +1,7 @@
 # Customer Support Platform
 
 [![CI](https://github.com/dmarinhoDKR/customer-support-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/dmarinhoDKR/customer-support-platform/actions/workflows/ci.yml)
+[![CD](https://github.com/dmarinhoDKR/customer-support-platform/actions/workflows/cd.yml/badge.svg)](https://github.com/dmarinhoDKR/customer-support-platform/actions/workflows/cd.yml)
 
 Customer Support Platform is a full-stack ticket management application built with React, ASP.NET Core Web API, SQL Server, and Docker. The project includes JWT authentication, dashboard metrics, ticket creation, filtering, detailed ticket views, comments, assignment, and status history, simulating a real-world customer support workflow.
 
@@ -62,7 +63,7 @@ Detailed ticket view with metadata, comments, and status history.
 - SQL Server running in Docker with persistent volume
 - WSL-based Linux development environment
 - Backend configuration via environment variables for local secrets
-- GitHub Actions CI pipeline for frontend and backend build validation
+- GitHub Actions CI pipeline for build validation and CD workflow for release artifact preparation
 
 ## Current Features
 
@@ -79,6 +80,7 @@ Detailed ticket view with metadata, comments, and status history.
 - Ticket assignment
 - Ticket status history
 - SQL Server running in Docker with persistent volume
+- GitHub Actions CI/CD workflows for build validation and release artifact generation
 - Automatic database migration on backend startup
 
 ## Run Locally
