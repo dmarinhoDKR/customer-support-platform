@@ -1,5 +1,7 @@
 # Customer Support Platform
 
+[![CI](https://github.com/dmarinhoDKR/customer-support-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/dmarinhoDKR/customer-support-platform/actions/workflows/ci.yml)
+
 Customer Support Platform is a full-stack ticket management application built with React, ASP.NET Core Web API, SQL Server, and Docker. The project includes JWT authentication, dashboard metrics, ticket creation, filtering, detailed ticket views, comments, assignment, and status history, simulating a real-world customer support workflow.
 
 ## Overview
