@@ -34,4 +34,18 @@ public class LoginTests : IClassFixture<CustomWebApplicationFactory>
         body.Email.Should().Be("admin@customersupport.com");
         body.Role.Should().Be("Admin");
     }
+
+    [Fact]
+    public async Task Login_WithInvalidPassword_ShouldReturnUnauthorized()
+    {
+        var request = new LoginDto
+        {
+            Email = "admin@customersupport.com",
+            Password = "wrong-password"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/Auth/login", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
 }
