@@ -62,6 +62,7 @@ Detailed ticket view with metadata, comments, and status history.
 - SQL Server running in Docker with persistent volume
 - WSL-based Linux development environment
 - Backend configuration via environment variables for local secrets
+- GitHub Actions CI pipeline for frontend and backend build validation
 
 ## Current Features
 
