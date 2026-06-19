@@ -3,4 +3,5 @@
   <Project Path="CustomerSupport.Application/CustomerSupport.Application.csproj" />
   <Project Path="CustomerSupport.Domain/CustomerSupport.Domain.csproj" />
   <Project Path="CustomerSupport.Infrastructure/CustomerSupport.Infrastructure.csproj" />
+  <Project Path="CustomerSupport.Tests/CustomerSupport.Tests.csproj" />
 </Solution>
