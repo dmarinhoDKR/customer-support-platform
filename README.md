@@ -49,6 +49,7 @@ Detailed ticket view with metadata, comments, and status history.
 - BCrypt
 - Swagger
 
+
 ### Environment
 - WSL Ubuntu
 - Docker Desktop
@@ -64,6 +65,7 @@ Detailed ticket view with metadata, comments, and status history.
 - WSL-based Linux development environment
 - Backend configuration via environment variables for local secrets
 - GitHub Actions CI pipeline for build validation and CD workflow for release artifact preparation
+- Postman collection for manual API testing and QA workflows
 
 ## Current Features
 
@@ -82,6 +84,24 @@ Detailed ticket view with metadata, comments, and status history.
 - SQL Server running in Docker with persistent volume
 - GitHub Actions CI/CD workflows for build validation and release artifact generation
 - Automatic database migration on backend startup
+
+## API Testing
+
+A Postman collection is included to support manual API validation, authentication flow checks, and endpoint testing across the platform.
+
+Postman collection:
+- `docs/postman/CustomerSupport.postman_collection.json`
+
+Covered flows:
+- Authentication
+- Dashboard summary
+- Ticket listing
+- Ticket creation
+- Ticket lookup by id
+- Ticket status update
+- Ticket assignment
+- Ticket comments
+- Ticket status history
 
 ## Run Locally
 
