@@ -3,6 +3,29 @@
 [![CI](https://github.com/dmarinhoDKR/customer-support-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/dmarinhoDKR/customer-support-platform/actions/workflows/ci.yml)
 [![CD](https://github.com/dmarinhoDKR/customer-support-platform/actions/workflows/cd.yml/badge.svg)](https://github.com/dmarinhoDKR/customer-support-platform/actions/workflows/cd.yml)
 
+<p align="center">
+  <img src="https://img.shields.io/badge/C%23-512BD4?style=for-the-badge&logo=csharp&logoColor=white" />
+  <img src="https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" />
+  <img src="https://img.shields.io/badge/ASP.NET%20Core-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" />
+  <img src="https://img.shields.io/badge/REST%20API-005571?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" />
+  <img src="https://img.shields.io/badge/OpenAPI-6BA539?style=for-the-badge&logo=openapiinitiative&logoColor=white" />
+  <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" />
+  <img src="https://img.shields.io/badge/Entity%20Framework%20Core-512BD4?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/SQL%20Server-CC2927?style=for-the-badge&logo=microsoftsqlserver&logoColor=white" />
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+  <img src="https://img.shields.io/badge/GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white" />
+  <img src="https://img.shields.io/badge/CI%2FCD-0A0A0A?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/API%20Testing-FF6C37?style=for-the-badge&logo=postman&logoColor=white" />
+  <img src="https://img.shields.io/badge/Role--Based%20Access-2E8B57?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Dashboard-1E90FF?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Ticket%20Management-6A5ACD?style=for-the-badge" />
+</p>
+
 Customer Support Platform is a full-stack ticket management application built with React, ASP.NET Core Web API, SQL Server, and Docker. The project includes JWT authentication, dashboard metrics, ticket creation, filtering, detailed ticket views, comments, assignment, and status history, simulating a real-world customer support workflow.
 
 ## Overview
