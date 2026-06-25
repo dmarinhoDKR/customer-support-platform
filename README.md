@@ -30,7 +30,7 @@ Customer Support Platform is a full-stack ticket management application built wi
 
 ## Overview
 
-This project simulates a real-world customer support workflow with authentication, dashboard metrics, ticket creation, ticket details, comments, status history, and paginated data access.
+This project simulates a real-world customer support workflow with authentication, dashboard metrics, ticket creation, ticket details, comments, status history, paginated data access, and automated frontend/backend test coverage.
 
 ## Screenshots
 
@@ -88,6 +88,7 @@ Detailed ticket view with metadata, comments, and status history.
 - WSL-based Linux development environment
 - Backend configuration via environment variables for local secrets
 - GitHub Actions CI pipeline for build validation and CD workflow for release artifact preparation
+- Automated frontend and backend test validation with GitHub Actions
 - Postman collection for manual API testing and QA workflows
 
 ## Current Features
@@ -105,8 +106,10 @@ Detailed ticket view with metadata, comments, and status history.
 - Ticket assignment
 - Ticket status history
 - SQL Server running in Docker with persistent volume
-- GitHub Actions CI/CD workflows for build validation and release artifact generation
+- GitHub Actions CI/CD workflows for frontend/backend test validation, build checks, and release artifact generation
 - Automatic database migration on backend startup
+- Frontend automated tests with Vitest and Testing Library
+- Backend integration tests with xUnit and ASP.NET Core test host
 
 ## API Testing
 
@@ -125,6 +128,29 @@ Covered flows:
 - Ticket assignment
 - Ticket comments
 - Ticket status history
+
+## Automated Testing
+
+The project includes automated test coverage for both frontend and backend workflows.
+
+Frontend:
+- Vitest
+- Testing Library
+- Login flow
+- Protected routes
+- Dashboard page
+- Tickets page
+- Ticket details page
+
+Backend:
+- xUnit
+- ASP.NET Core integration tests
+- Authentication
+- Ticket listing
+- Ticket creation
+- Ticket status update
+- Comments
+- Status history
 
 ## Run Locally
 
