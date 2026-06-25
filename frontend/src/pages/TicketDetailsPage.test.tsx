@@ -130,4 +130,61 @@ describe("TicketDetailsPage", () => {
       await screen.findByText("Could not load ticket details.")
     ).toBeInTheDocument();
   });
+
+  it("mostra estados vazios para comentários e histórico", async () => {
+    vi.mocked(api.get).mockImplementation((url) => {
+      if (url === "/tickets/1") {
+        return Promise.resolve({
+          data: {
+            id: 1,
+            title: "Invoice not generated",
+            description: "Customer completed payment but did not receive invoice.",
+            status: "Open",
+            priority: "Medium",
+            categoryId: 1,
+            categoryName: "Technical Support",
+            createdByUserId: 1,
+            createdByUserName: "Customer User",
+            assignedToUserId: null,
+            assignedToUserName: null,
+            createdAt: "2026-06-20T10:00:00Z",
+            updatedAt: null,
+          },
+        });
+      }
+
+      if (url === "/tickets/1/comments") {
+        return Promise.resolve({
+          data: [],
+        });
+      }
+
+      if (url === "/tickets/1/status-history") {
+        return Promise.resolve({
+          data: [],
+        });
+      }
+
+      return Promise.reject(new Error("Unknown endpoint"));
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/tickets/1"]}>
+        <Routes>
+          <Route path="/tickets/:id" element={<TicketDetailsPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Invoice not generated")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Assigned To: Unassigned")).toBeInTheDocument();
+    expect(screen.getByText("Updated At: Not updated yet")).toBeInTheDocument();
+    expect(screen.getByText("No comments yet.")).toBeInTheDocument();
+    expect(
+      screen.getByText("No status changes recorded yet")
+    ).toBeInTheDocument();
+  });
 });
