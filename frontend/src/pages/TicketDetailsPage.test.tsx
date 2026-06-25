@@ -10,6 +10,96 @@ vi.mock("../services/api", () => ({
   },
 }));
 
+function buildTicket(
+  overrides?: Partial<{
+    id: number;
+    title: string;
+    description: string;
+    status: string;
+    priority: string;
+    categoryId: number;
+    categoryName: string;
+    createdByUserId: number;
+    createdByUserName: string;
+    assignedToUserId: number | null;
+    assignedToUserName: string | null;
+    createdAt: string;
+    updatedAt: string | null;
+  }>
+) {
+  return {
+    id: 1,
+    title: "Critical production issue",
+    description: "Main application flow is unavailable for multiple users.",
+    status: "InProgress",
+    priority: "Critical",
+    categoryId: 1,
+    categoryName: "Technical Support",
+    createdByUserId: 1,
+    createdByUserName: "Customer User",
+    assignedToUserId: 2,
+    assignedToUserName: "Agent User",
+    createdAt: "2026-06-20T10:00:00Z",
+    updatedAt: "2026-06-20T11:00:00Z",
+    ...overrides,
+  };
+}
+
+function buildComment(
+  overrides?: Partial<{
+    id: number;
+    ticketId: number;
+    userId: number;
+    userName: string;
+    content: string;
+    createdAt: string;
+  }>
+) {
+  return {
+    id: 1,
+    ticketId: 1,
+    userId: 2,
+    userName: "Agent User",
+    content: "We are investigating the incident and collecting more details.",
+    createdAt: "2026-06-20T10:30:00Z",
+    ...overrides,
+  };
+}
+
+function buildHistoryItem(
+  overrides?: Partial<{
+    id: number;
+    ticketId: number;
+    oldStatus: string;
+    newStatus: string;
+    changedByUserId: number;
+    changedByUserName: string;
+    changedAt: string;
+  }>
+) {
+  return {
+    id: 1,
+    ticketId: 1,
+    oldStatus: "Open",
+    newStatus: "InProgress",
+    changedByUserId: 2,
+    changedByUserName: "Agent User",
+    changedAt: "2026-06-20T10:45:00Z",
+    ...overrides,
+  };
+}
+
+function renderTicketDetailsPage(route = "/tickets/1") {
+  render(
+    <MemoryRouter initialEntries={[route]}>
+      <Routes>
+        <Route path="/tickets/:id" element={<TicketDetailsPage />} />
+        <Route path="/tickets" element={<TicketDetailsPage />} />
+      </Routes>
+    </MemoryRouter>
+  );
+}
+
 describe("TicketDetailsPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -19,67 +109,26 @@ describe("TicketDetailsPage", () => {
     vi.mocked(api.get).mockImplementation((url) => {
       if (url === "/tickets/1") {
         return Promise.resolve({
-          data: {
-            id: 1,
-            title: "Critical production issue",
-            description:
-              "Main application flow is unavailable for multiple users.",
-            status: "InProgress",
-            priority: "Critical",
-            categoryId: 1,
-            categoryName: "Technical Support",
-            createdByUserId: 1,
-            createdByUserName: "Customer User",
-            assignedToUserId: 2,
-            assignedToUserName: "Agent User",
-            createdAt: "2026-06-20T10:00:00Z",
-            updatedAt: "2026-06-20T11:00:00Z",
-          },
+          data: buildTicket(),
         });
       }
 
       if (url === "/tickets/1/comments") {
         return Promise.resolve({
-          data: [
-            {
-              id: 1,
-              ticketId: 1,
-              userId: 2,
-              userName: "Agent User",
-              content:
-                "We are investigating the incident and collecting more details.",
-              createdAt: "2026-06-20T10:30:00Z",
-            },
-          ],
+          data: [buildComment()],
         });
       }
 
       if (url === "/tickets/1/status-history") {
         return Promise.resolve({
-          data: [
-            {
-              id: 1,
-              ticketId: 1,
-              oldStatus: "Open",
-              newStatus: "InProgress",
-              changedByUserId: 2,
-              changedByUserName: "Agent User",
-              changedAt: "2026-06-20T10:45:00Z",
-            },
-          ],
+          data: [buildHistoryItem()],
         });
       }
 
       return Promise.reject(new Error("Unknown endpoint"));
     });
 
-    render(
-      <MemoryRouter initialEntries={["/tickets/1"]}>
-        <Routes>
-          <Route path="/tickets/:id" element={<TicketDetailsPage />} />
-        </Routes>
-      </MemoryRouter>
-    );
+    renderTicketDetailsPage();
 
     expect(screen.getByText("Ticket Details")).toBeInTheDocument();
 
@@ -118,13 +167,7 @@ describe("TicketDetailsPage", () => {
   it("mostra erro quando falha ao carregar os detalhes", async () => {
     vi.mocked(api.get).mockRejectedValue(new Error("API error"));
 
-    render(
-      <MemoryRouter initialEntries={["/tickets/1"]}>
-        <Routes>
-          <Route path="/tickets/:id" element={<TicketDetailsPage />} />
-        </Routes>
-      </MemoryRouter>
-    );
+    renderTicketDetailsPage();
 
     expect(
       await screen.findByText("Could not load ticket details.")
@@ -135,21 +178,16 @@ describe("TicketDetailsPage", () => {
     vi.mocked(api.get).mockImplementation((url) => {
       if (url === "/tickets/1") {
         return Promise.resolve({
-          data: {
-            id: 1,
+          data: buildTicket({
             title: "Invoice not generated",
-            description: "Customer completed payment but did not receive invoice.",
+            description:
+              "Customer completed payment but did not receive invoice.",
             status: "Open",
             priority: "Medium",
-            categoryId: 1,
-            categoryName: "Technical Support",
-            createdByUserId: 1,
-            createdByUserName: "Customer User",
             assignedToUserId: null,
             assignedToUserName: null,
-            createdAt: "2026-06-20T10:00:00Z",
             updatedAt: null,
-          },
+          }),
         });
       }
 
@@ -168,13 +206,7 @@ describe("TicketDetailsPage", () => {
       return Promise.reject(new Error("Unknown endpoint"));
     });
 
-    render(
-      <MemoryRouter initialEntries={["/tickets/1"]}>
-        <Routes>
-          <Route path="/tickets/:id" element={<TicketDetailsPage />} />
-        </Routes>
-      </MemoryRouter>
-    );
+    renderTicketDetailsPage();
 
     await waitFor(() => {
       expect(screen.getByText("Invoice not generated")).toBeInTheDocument();
@@ -186,5 +218,15 @@ describe("TicketDetailsPage", () => {
     expect(
       screen.getByText("No status changes recorded yet")
     ).toBeInTheDocument();
+  });
+
+  it("mostra erro quando o id do ticket não é informado", async () => {
+    renderTicketDetailsPage("/tickets");
+
+    expect(
+      await screen.findByText("Ticket id was not provided.")
+    ).toBeInTheDocument();
+
+    expect(api.get).not.toHaveBeenCalled();
   });
 });
