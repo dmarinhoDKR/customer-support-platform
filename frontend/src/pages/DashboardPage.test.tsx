@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react"
 import { vi } from "vitest";
 import { DashboardPage } from "./DashboardPage";
 import { api } from "../services/api";
+import userEvent from "@testing-library/user-event";
 
 const mockNavigate = vi.fn();
 
@@ -86,5 +87,41 @@ describe("DashboardPage", () => {
         expect(
             await screen.findByText("Could not load dashboard summary.")
         ).toBeInTheDocument();
+    });
+
+    it("faz logout, limpa o localStorage e redireciona para login", async () => {
+        vi.mocked(api.get).mockResolvedValue({
+            data: {
+                totalTickets: 5,
+                openTickets: 2,
+                inProgressTickets: 1,
+                waitingForCustomerTickets: 0,
+                resolvedTickets: 1,
+                closedTickets: 1,
+                lowPriorityTickets: 0,
+                mediumPriorityTickets: 1,
+                highPriorityTickets: 2,
+                criticalPriorityTickets: 1,
+            },
+        });
+
+        render(
+            <MemoryRouter>
+                <DashboardPage />
+            </MemoryRouter>
+        );
+
+        await screen.findByText("Logout");
+
+        expect(localStorage.getItem("token")).toBe("fake-token");
+        expect(localStorage.getItem("fullName")).toBe("Admin User");
+        expect(localStorage.getItem("role")).toBe("Admin");
+
+        await userEvent.click(screen.getByText("Logout"));
+
+        expect(localStorage.getItem("token")).toBeNull();
+        expect(localStorage.getItem("fullName")).toBeNull();
+        expect(localStorage.getItem("role")).toBeNull();
+        expect(mockNavigate).toHaveBeenCalledWith("/");
     });
 });
