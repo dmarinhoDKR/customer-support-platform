@@ -16,7 +16,62 @@ public class CreateTicketCommentTests : IClassFixture<CustomWebApplicationFactor
     }
 
     [Fact]
-    public async Task CreateTicketComment_WithValidPayload_ShouldReturnCreatedComment()
+    public async Task CreateComment_WithValidPayload_ShouldReturnCreatedComment()
+    {
+        await AuthenticateAsync();
+
+        var createTicketResponse = await _client.PostAsJsonAsync("/api/Tickets", new CreateTicketDto
+        {
+            Title = "Ticket for comment creation",
+            Description = "Created for comment creation test.",
+            CategoryId = 1,
+            CreatedByUserId = 1,
+            AssignedToUserId = null,
+            Priority = 2
+        });
+
+        createTicketResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var createdTicket = await createTicketResponse.Content.ReadFromJsonAsync<TicketResponseDto>();
+
+        createdTicket.Should().NotBeNull();
+
+        var response = await _client.PostAsJsonAsync(
+            $"/api/Tickets/{createdTicket!.Id}/comments",
+            new CreateTicketCommentDto
+            {
+                UserId = 1,
+                Content = "Comment created by integration test"
+            });
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var body = await response.Content.ReadFromJsonAsync<TicketCommentResponseDto>();
+
+        body.Should().NotBeNull();
+        body!.TicketId.Should().Be(createdTicket.Id);
+        body.UserId.Should().Be(1);
+        body.Content.Should().Be("Comment created by integration test");
+        body.UserName.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public async Task CreateComment_WithNonExistingTicket_ShouldReturnNotFound()
+    {
+        await AuthenticateAsync();
+
+        var response = await _client.PostAsJsonAsync(
+            "/api/Tickets/9999/comments",
+            new CreateTicketCommentDto
+            {
+                UserId = 1,
+                Content = "Invalid comment target"
+            });
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    private async Task AuthenticateAsync()
     {
         var loginResponse = await _client.PostAsJsonAsync("/api/Auth/login", new LoginDto
         {
@@ -33,42 +88,6 @@ public class CreateTicketCommentTests : IClassFixture<CustomWebApplicationFactor
 
         _client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", authBody.Token);
-
-        var createTicketResponse = await _client.PostAsJsonAsync("/api/Tickets", new CreateTicketDto
-        {
-            Title = "Ticket for comment test",
-            Description = "This ticket will receive a comment during automated testing.",
-            CategoryId = 1,
-            CreatedByUserId = 1,
-            AssignedToUserId = null,
-            Priority = 2
-        });
-
-        createTicketResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-
-        var createdTicket = await createTicketResponse.Content.ReadFromJsonAsync<TicketResponseDto>();
-
-        createdTicket.Should().NotBeNull();
-
-        var commentRequest = new CreateTicketCommentDto
-        {
-            UserId = 1,
-            Content = "This is a test comment created by the integration test."
-        };
-
-        var commentResponse = await _client.PostAsJsonAsync(
-            $"/api/Tickets/{createdTicket!.Id}/comments",
-            commentRequest
-        );
-
-        commentResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        var createdComment = await commentResponse.Content.ReadFromJsonAsync<TicketCommentResponseDto>();
-
-        createdComment.Should().NotBeNull();
-        createdComment!.TicketId.Should().Be(createdTicket.Id);
-        createdComment.UserId.Should().Be(commentRequest.UserId);
-        createdComment.Content.Should().Be(commentRequest.Content);
     }
 
     public class TicketResponseDto
@@ -76,14 +95,6 @@ public class CreateTicketCommentTests : IClassFixture<CustomWebApplicationFactor
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
-        public string Priority { get; set; } = string.Empty;
-        public int CategoryId { get; set; }
-        public string CategoryName { get; set; } = string.Empty;
-        public int CreatedByUserId { get; set; }
-        public string CreatedByUserName { get; set; } = string.Empty;
-        public int? AssignedToUserId { get; set; }
-        public string? AssignedToUserName { get; set; }
     }
 
     public class TicketCommentResponseDto
@@ -93,5 +104,6 @@ public class CreateTicketCommentTests : IClassFixture<CustomWebApplicationFactor
         public int UserId { get; set; }
         public string UserName { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
     }
 }
