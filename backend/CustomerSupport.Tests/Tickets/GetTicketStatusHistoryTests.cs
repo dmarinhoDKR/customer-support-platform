@@ -16,23 +16,19 @@ public class GetTicketStatusHistoryTests : IClassFixture<CustomWebApplicationFac
     }
 
     [Fact]
+    public async Task GetTicketStatusHistory_WithNonExistingTicket_ShouldReturnNotFound()
+    {
+        await AuthenticateAsync();
+
+        var response = await _client.GetAsync("/api/Tickets/9999/status-history");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
     public async Task GetTicketStatusHistory_AfterStatusUpdate_ShouldReturnHistoryItems()
     {
-        var loginResponse = await _client.PostAsJsonAsync("/api/Auth/login", new LoginDto
-        {
-            Email = "admin@customersupport.com",
-            Password = "admin123"
-        });
-
-        loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        var authBody = await loginResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
-
-        authBody.Should().NotBeNull();
-        authBody!.Token.Should().NotBeNullOrWhiteSpace();
-
-        _client.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", authBody.Token);
+        await AuthenticateAsync();
 
         var createTicketResponse = await _client.PostAsJsonAsync("/api/Tickets", new CreateTicketDto
         {
@@ -100,5 +96,24 @@ public class GetTicketStatusHistoryTests : IClassFixture<CustomWebApplicationFac
         public int ChangedByUserId { get; set; }
         public string ChangedByUserName { get; set; } = string.Empty;
         public DateTime ChangedAt { get; set; }
+    }
+
+    private async Task AuthenticateAsync()
+    {
+        var loginResponse = await _client.PostAsJsonAsync("/api/Auth/login", new LoginDto
+        {
+            Email = "admin@customersupport.com",
+            Password = "admin123"
+        });
+
+        loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var authBody = await loginResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
+
+        authBody.Should().NotBeNull();
+        authBody!.Token.Should().NotBeNullOrWhiteSpace();
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", authBody.Token);
     }
 }
