@@ -10,6 +10,7 @@ namespace CustomerSupport.Tests;
 
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
+    private readonly string _databaseName = $"CustomerSupportTestsDb_{Guid.NewGuid()}";
     public CustomWebApplicationFactory()
     {
         Environment.SetEnvironmentVariable("CONNECTION_STRING", "Server=(localdb)\\mssqllocaldb;Database=UnusedForTests;Trusted_Connection=True;");
@@ -27,7 +28,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
             services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseInMemoryDatabase("CustomerSupportTestsDb");
+                options.UseInMemoryDatabase(_databaseName);
             });
         });
     }
