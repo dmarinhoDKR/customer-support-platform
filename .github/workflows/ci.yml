@@ -54,7 +54,22 @@ jobs:
         run: dotnet test --no-build --no-restore -c Release
 
       - name: Start database
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: docker compose up -d
+
+      - name: Wait for SQL Server to be ready
+        run: |
+          for i in {1..30}; do
+            if docker logs customersupport-sql 2>&1 | grep -q "SQL Server is now ready for client connections"; then
+              echo "SQL Server is ready"
+              exito 0
+            fi
+            sleep 5
+          done
+          echo "SQL Server did not become ready in time"
+          docker logs customersupport-sql || true
+          exit 1
 
       - name: Start backend API
         working-directory: backend
