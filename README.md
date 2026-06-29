@@ -87,8 +87,7 @@ Detailed ticket view with metadata, comments, and status history.
 - SQL Server running in Docker with persistent volume
 - WSL-based Linux development environment
 - Backend configuration via environment variables for local secrets
-- GitHub Actions CI pipeline for build validation and CD workflow for release artifact preparation
-- Automated frontend and backend test validation with GitHub Actions
+- GitHub Actions CI pipeline with frontend tests/build and backend build/test validation in Release mode, plus a CD workflow for release artifact preparation
 - Postman collection for manual API testing and QA workflows
 
 ## Current Features
@@ -106,7 +105,7 @@ Detailed ticket view with metadata, comments, and status history.
 - Ticket assignment
 - Ticket status history
 - SQL Server running in Docker with persistent volume
-- GitHub Actions CI/CD workflows for frontend/backend test validation, build checks, and release artifact generation
+- GitHub Actions CI/CD workflows with frontend tests/build and backend build/test validation in Release mode, plus release artifact generation
 - Automatic database migration on backend startup
 - Frontend automated tests with Vitest and Testing Library
 - Backend integration tests with xUnit and ASP.NET Core test host
