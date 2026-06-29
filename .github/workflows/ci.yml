@@ -44,8 +44,8 @@ jobs:
 
       - name: Build backend
         working-directory: backend
-        run: dotnet build --no-restore
+        run: dotnet build --no-restore -c Release
 
       - name: Run backend tests
         working-directory: backend
-        run: dotnet test --no-build
+        run: dotnet test --no-build --no-restore -c Release
