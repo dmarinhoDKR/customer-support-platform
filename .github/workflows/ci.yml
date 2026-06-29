@@ -25,6 +25,9 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      - name: Install Newman
+        run: npm install -g newman
+
       - name: Run frontend tests
         working-directory: frontend
         run: npm run test:run
@@ -49,3 +52,34 @@ jobs:
       - name: Run backend tests
         working-directory: backend
         run: dotnet test --no-build --no-restore -c Release
+
+      - name: Start database
+        run: docker compose up -d
+
+      - name: Start backend API
+        working-directory: backend
+        env:
+          CONNECTION_STRING: ${{ secrets.CONNECTION_STRING }}
+          JWT_KEY: ${{ secrets.JWT_KEY }}
+          Jwt__Issuer: ${{ secrets.JWT_ISSUER }}
+          Jwt__Audience: ${{ secrets.JWT_AUDIENCE }}
+        run: |
+          nohup dotnet run --project ./CustomerSupport.API/CustomerSupport.API.csproj > api.log 2>&1 &
+
+      - name: Wait for API to be ready
+        working-directory: backend
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:5132/swagger > /dev/null; then
+              echo "API is ready"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "API did not start in time"
+          cat api.log || true
+          exit 1
+
+      - name: Run Postman collection with Newman
+        run: |
+          newman run docs/postman/CustomerSupport.postman_collection.json --env-var "baseUrl=http://localhost:5132"
