@@ -63,7 +63,7 @@ jobs:
           for i in {1..30}; do
             if docker logs customersupport-sql 2>&1 | grep -q "SQL Server is now ready for client connections"; then
               echo "SQL Server is ready"
-              exito 0
+              exit 0
             fi
             sleep 5
           done
