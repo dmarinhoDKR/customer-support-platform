@@ -18,21 +18,7 @@ public class AssignTicketTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task AssignTicket_WithValidPayload_ShouldUpdateAssignedUser()
     {
-        var loginResponse = await _client.PostAsJsonAsync("/api/Auth/login", new LoginDto
-        {
-            Email = "admin@customersupport.com",
-            Password = "admin123"
-        });
-
-        loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        var authBody = await loginResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
-
-        authBody.Should().NotBeNull();
-        authBody!.Token.Should().NotBeNullOrWhiteSpace();
-
-        _client.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", authBody.Token);
+        await AuthenticateAsync();
 
         var createResponse = await _client.PostAsJsonAsync("/api/Tickets", new CreateTicketDto
         {
@@ -67,6 +53,21 @@ public class AssignTicketTests : IClassFixture<CustomWebApplicationFactory>
         updatedTicket.AssignedToUserName.Should().Be("Agent User");
     }
 
+    [Fact]
+    public async Task AssignTicket_WithNonExistingTicket_ShouldReturnNotFound()
+    {
+        await AuthenticateAsync();
+
+        var response = await _client.PutAsJsonAsync(
+            "/api/Tickets/9999/assign",
+            new AssignTicketDto
+            {
+                AssignedToUserId = 2
+            });
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     public class TicketResponseDto
     {
         public int Id { get; set; }
@@ -80,5 +81,24 @@ public class AssignTicketTests : IClassFixture<CustomWebApplicationFactory>
         public string CreatedByUserName { get; set; } = string.Empty;
         public int? AssignedToUserId { get; set; }
         public string? AssignedToUserName { get; set; }
+    }
+
+    private async Task AuthenticateAsync()
+    {
+        var loginResponse = await _client.PostAsJsonAsync("/api/Auth/login", new LoginDto
+        {
+            Email = "admin@customersupport.com",
+            Password = "admin123"
+        });
+
+        loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var authBody = await loginResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
+
+        authBody.Should().NotBeNull();
+        authBody!.Token.Should().NotBeNullOrWhiteSpace();
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", authBody.Token);
     }
 }
