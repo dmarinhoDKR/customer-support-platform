@@ -1,4 +1,5 @@
 import { AxiosHeaders } from "axios";
+import type { InternalAxiosRequestConfig } from "axios";
 import { api } from "./api";
 
 describe("api interceptor", () => {
@@ -9,7 +10,11 @@ describe("api interceptor", () => {
   function getRequestInterceptor() {
     const handlers = (
       api.interceptors.request as typeof api.interceptors.request & {
-        handlers?: Array<{ fulfilled?: (config: any) => any }>;
+        handlers?: Array<{
+          fulfilled?: (
+            config: InternalAxiosRequestConfig
+          ) => InternalAxiosRequestConfig | Promise<InternalAxiosRequestConfig>;
+        }>;
       }
     ).handlers;
 
@@ -27,7 +32,7 @@ describe("api interceptor", () => {
 
     const config = await interceptor({
       headers: new AxiosHeaders(),
-    });
+    } as InternalAxiosRequestConfig);
 
     expect(config.headers.Authorization).toBe("Bearer fake-token");
   });
@@ -37,7 +42,7 @@ describe("api interceptor", () => {
 
     const config = await interceptor({
       headers: new AxiosHeaders(),
-    });
+    } as InternalAxiosRequestConfig);
 
     expect(config.headers.Authorization).toBeUndefined();
   });

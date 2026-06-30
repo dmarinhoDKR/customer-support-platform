@@ -151,11 +151,7 @@ export function TicketsPage() {
     const [categoryId, setCategoryId] = useState("");
     const [createPriority, setCreatePriority] = useState("2");
 
-    async function loadTickets() {
-        setError("");
-        setLoading(true);
-
-        try {
+    async function loadTicketsData() {
             const response = await api.get<PagedResult<Ticket>>("/tickets", {
                 params: {
                     limit,
@@ -167,16 +163,35 @@ export function TicketsPage() {
                 },
             });
 
-            setResult(response.data);
-        }   catch {
-            setError("Could not load tickets. Please try again later.");
-        }   finally {
-            setLoading(false);
-        }
+            return response.data;
     }
 
     useEffect(() => {
-        void loadTickets();
+        async function fetchTickets(){
+            setError("");
+            setLoading(true);
+
+            try {
+                const response = await api.get<PagedResult<Ticket>>("/tickets", {
+                    params: {
+                        limit,
+                        offset,
+                        sortBy: "createdAt",
+                        sortDirection: "desc",
+                        status: status === "" ? undefined : Number(status),
+                        priority: priority === "" ? undefined : Number(priority),
+                    },
+                });
+
+                setResult(response.data);
+            } catch {
+                setError("Could not load tickets. Please try again later.");
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        void fetchTickets();
     }, [limit, offset, status, priority]);
 
     useEffect(() => {
@@ -237,7 +252,8 @@ export function TicketsPage() {
             setCategoryId("");
             setCreatePriority("2");
 
-            await loadTickets();
+            const data = await loadTicketsData();
+            setResult(data);
         }   catch {
             setCreateError("Could not create ticket. Please try again later.");
         }   finally {

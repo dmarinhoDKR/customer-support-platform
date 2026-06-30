@@ -39,7 +39,7 @@ describe("LoginPage", () => {
                 email: "admin@customersupport.com",
                 role: "Admin",
             },
-        }),
+        });
 
         render(
             <MemoryRouter>
