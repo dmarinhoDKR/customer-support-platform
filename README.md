@@ -4,6 +4,7 @@
 [![CD](https://github.com/dmarinhoDKR/customer-support-platform/actions/workflows/cd.yml/badge.svg)](https://github.com/dmarinhoDKR/customer-support-platform/actions/workflows/cd.yml)
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Load%20Testing-7D64FF?style=for-the-badge&logo=grafana&logoColor=white" />
   <img src="https://img.shields.io/badge/C%23-512BD4?style=for-the-badge&logo=csharp&logoColor=white" />
   <img src="https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" />
   <img src="https://img.shields.io/badge/ASP.NET%20Core-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" />
@@ -88,6 +89,7 @@ Detailed ticket view with metadata, comments, and status history.
 - WSL-based Linux development environment
 - Backend configuration via environment variables for local secrets
 - GitHub Actions CI pipeline with frontend tests/build, backend build/test validation in Release mode, and automated API regression checks via Newman
+- Grafana k6 load testing with threshold-based validation for authenticated API scenarios
 - Postman collection for manual API testing and QA workflows
 
 ## Current Features
@@ -110,6 +112,7 @@ Detailed ticket view with metadata, comments, and status history.
 - Frontend automated tests with Vitest and Testing Library
 - Backend integration tests with xUnit and ASP.NET Core test host
 - Automated API regression checks with Newman and the Postman collection
+- Load testing scripts with Grafana k6 for login, ticket listing, and dashboard summary
 
 ## API Testing
 
@@ -128,6 +131,23 @@ Covered flows:
 - Ticket assignment
 - Ticket comments
 - Ticket status history
+
+## Load Testing
+
+Basic load tests were added with Grafana k6 to validate API stability under concurrent authenticated traffic.
+
+Scripts:
+- `docs/load-tests/smoke-test.js`
+- `docs/load-tests/api-read-test.js`
+
+Validated scenarios:
+- login flow
+- ticket listing
+- dashboard summary
+
+Example threshold validation:
+- `http_req_failed < 1%`
+- `http_req_duration p(95) < 500ms`
 
 ## Automated Testing
 
