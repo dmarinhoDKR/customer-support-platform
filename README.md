@@ -92,6 +92,7 @@ Detailed ticket view with metadata, comments, and status history.
 - Grafana k6 load testing with threshold-based validation for authenticated API scenarios
 - Postman collection for manual API testing and QA workflows
 - Backend health check endpoint integrated into CI readiness validation
+- Health check endpoint and structured console logging for backend observability
 
 ## Current Features
 
@@ -115,6 +116,7 @@ Detailed ticket view with metadata, comments, and status history.
 - Backend health check endpoint for runtime availability validation
 - Automated API regression checks with Newman and the Postman collection
 - Load and stress testing scripts with Grafana k6 for login, ticket listing, and dashboard summary
+- Structured backend startup logging with Serilog
 
 ## API Testing
 
