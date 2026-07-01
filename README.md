@@ -91,6 +91,7 @@ Detailed ticket view with metadata, comments, and status history.
 - GitHub Actions CI pipeline with frontend tests/build, backend build/test validation in Release mode, and automated API regression checks via Newman
 - Grafana k6 load testing with threshold-based validation for authenticated API scenarios
 - Postman collection for manual API testing and QA workflows
+- Backend health check endpoint integrated into CI readiness validation
 
 ## Current Features
 
@@ -111,6 +112,7 @@ Detailed ticket view with metadata, comments, and status history.
 - Automatic database migration on backend startup
 - Frontend automated tests with Vitest and Testing Library
 - Backend integration tests with xUnit and ASP.NET Core test host
+- Backend health check endpoint for runtime availability validation
 - Automated API regression checks with Newman and the Postman collection
 - Load and stress testing scripts with Grafana k6 for login, ticket listing, and dashboard summary
 
