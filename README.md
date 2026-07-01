@@ -112,7 +112,7 @@ Detailed ticket view with metadata, comments, and status history.
 - Frontend automated tests with Vitest and Testing Library
 - Backend integration tests with xUnit and ASP.NET Core test host
 - Automated API regression checks with Newman and the Postman collection
-- Load testing scripts with Grafana k6 for login, ticket listing, and dashboard summary
+- Load and stress testing scripts with Grafana k6 for login, ticket listing, and dashboard summary
 
 ## API Testing
 
@@ -134,20 +134,21 @@ Covered flows:
 
 ## Load Testing
 
-Basic load tests were added with Grafana k6 to validate API stability under concurrent authenticated traffic.
+Basic load and stress tests were added with Grafana k6 to validate API stability under concurrent authenticated traffic.
 
 Scripts:
 - `docs/load-tests/smoke-test.js`
 - `docs/load-tests/api-read-test.js`
+- `docs/load-tests/stress-test.js`
 
 Validated scenarios:
 - login flow
 - ticket listing
 - dashboard summary
 
-Example threshold validation:
-- `http_req_failed < 1%`
-- `http_req_duration p(95) < 500ms`
+Threshold-based validation:
+- Load test: `http_req_failed < 1%` and `http_req_duration p(95) < 500ms`
+- Stress test: `http_req_failed < 2%` and `http_req_duration p(95) < 1300ms`
 
 ## Automated Testing
 
