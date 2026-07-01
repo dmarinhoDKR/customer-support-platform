@@ -101,6 +101,10 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+var logger = app.Logger;
+
+logger.LogInformation("CustomerSupport API starting in {Environment} environment.", app.Environment.EnvironmentName);
+logger.LogInformation("Preparing database and seed data.");
 
 
 // Seed initial data
@@ -110,15 +114,20 @@ using (var scope = app.Services.CreateScope())
 
     if (dbContext.Database.IsRelational())
     {
+        logger.LogInformation("Relational database detected. Applying migrations if needed.");
         dbContext.Database.Migrate();
+        logger.LogInformation("Database migrations checked successfully.");
     }
     else
     {
+        logger.LogInformation("Non-relational test database detected. Ensuring database is created.");
         dbContext.Database.EnsureCreated();
+        logger.LogInformation("Test database ensured successfully.");
     }
 
     if (!dbContext.Roles.Any())
     { 
+        logger.LogInformation("Seeding default roles.");
         dbContext.Roles.AddRange(
             new Role { Name = "Admin" },
             new Role { Name = "Agent" },
@@ -127,10 +136,12 @@ using (var scope = app.Services.CreateScope())
         );
     
         dbContext.SaveChanges();
+        logger.LogInformation("Default roles seeded successfully.");
     }
 
     if (!dbContext.Categories.Any())
     {
+        logger.LogInformation("Seeding default categories.");
         dbContext.Categories.AddRange(
             new Category { Name = "Authentication", Description = "Login, access, and identity issues." },
             new Category { Name = "Billing", Description = "Payments, invoices, and subscription issues." },
@@ -139,10 +150,12 @@ using (var scope = app.Services.CreateScope())
         );
 
         dbContext.SaveChanges();
+        logger.LogInformation("Default categories seeded successfully.");
     }
 
     if (!dbContext.Users.Any())
     {
+        logger.LogInformation("Seeding default users.");
         var adminRole = dbContext.Roles.First(x => x.Name == "Admin");
         var agentRole = dbContext.Roles.First(x => x.Name == "Agent");
         var customerRole = dbContext.Roles.First(x => x.Name == "Customer");
@@ -172,9 +185,12 @@ using (var scope = app.Services.CreateScope())
         );
 
         dbContext.SaveChanges();
+        logger.LogInformation("Default users seeded successfully.");
     }
 
 }
+
+logger.LogInformation("Startup initialization completed successfully.");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
