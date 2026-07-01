@@ -214,7 +214,8 @@ dotnet run --project ./CustomerSupport.API/CustomerSupport.API.csproj
 ```
 
 API:
-- http://localhost:5132/swagger
+- Swagger: http://localhost:5132/swagger
+- Health check: http://localhost:5132/health
 
 ### 4. Run the frontend
 

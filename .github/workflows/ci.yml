@@ -81,12 +81,12 @@ jobs:
         run: |
           nohup dotnet run --project ./CustomerSupport.API/CustomerSupport.API.csproj > api.log 2>&1 &
 
-      - name: Wait for API to be ready
+      - name: Wait for API health check
         working-directory: backend
         run: |
           for i in {1..30}; do
-            if curl -s http://localhost:5132/swagger > /dev/null; then
-              echo "API is ready"
+            if curl -s http://localhost:5132/health > /dev/null; then
+              echo "API health check is ready"
               exit 0
             fi
             sleep 5
