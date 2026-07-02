@@ -14,15 +14,32 @@ namespace CustomerSupport.API.Controllers;
 public class TicketsController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly ILogger<TicketsController> _logger;
 
-    public TicketsController(AppDbContext context)
+    public TicketsController(
+        AppDbContext context,
+        ILogger<TicketsController> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     [HttpGet]
     public async Task<ActionResult<PagedResultDto<TicketDto>>> GetAll([FromQuery] TicketFilterDto filter)
     {
+        _logger.LogInformation(
+            "Listing tickets with filters Status={Status}, Priority={Priority}, AssignedToUserId={AssignedToUserId}, CategoryId={CategoryId}, PageNumber={PageNumber}, PageSize={PageSize}, Limit={Limit}, Offset={Offset}, SortBy={SortBy}, SortDirection={SortDirection}.",
+            filter.Status,
+            filter.Priority,
+            filter.AssignedToUserId,
+            filter.CategoryId,
+            filter.PageNumber,
+            filter.PageSize,
+            filter.Limit,
+            filter.Offset,
+            filter.SortBy,
+            filter.SortDirection);
+
         var query = _context.Tickets
             .Include(x => x.Category)
             .Include(x => x.AssignedToUser)
@@ -32,7 +49,10 @@ public class TicketsController : ControllerBase
         if (filter.Status.HasValue)
         {
             if (!Enum.IsDefined(typeof(TicketStatus), filter.Status.Value))
+            {
+                _logger.LogWarning("Ticket listing failed. Invalid status filter {Status}.", filter.Status);
                 return BadRequest("The informed status filter is invalid.");
+            }
 
             var status = (TicketStatus)filter.Status.Value;
             query = query.Where(x => x.Status == status);
@@ -41,7 +61,10 @@ public class TicketsController : ControllerBase
         if (filter.Priority.HasValue)
         {
             if (!Enum.IsDefined(typeof(TicketPriority), filter.Priority.Value))
+            {
+                _logger.LogWarning("Ticket listing failed. Invalid priority filter {Priority}.", filter.Priority);
                 return BadRequest("The informed priority filter is invalid.");
+            }
 
             var priority = (TicketPriority)filter.Priority.Value;
             query = query.Where(x => x.Priority == priority);
@@ -125,12 +148,19 @@ public class TicketsController : ControllerBase
             Offset = filter.Offset ?? skip
         };
 
+        _logger.LogInformation(
+            "Tickets listed successfully. Returned {ReturnedCount} items out of {TotalCount}.",
+            tickets.Count,
+            totalCount);
+
         return Ok(result);
     }
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<TicketDto>> GetById(int id)
     {
+        _logger.LogInformation("Fetching ticket {TicketId}.", id);
+
         var ticket = await _context.Tickets
             .Include(x => x.Category)
             .Include(x => x.AssignedToUser)
@@ -155,18 +185,27 @@ public class TicketsController : ControllerBase
             .FirstOrDefaultAsync();
 
         if (ticket is null)
+        {
+            _logger.LogWarning("Ticket {TicketId} was not found.", id);
             return NotFound();
+        }
 
+        _logger.LogInformation("Ticket {TicketId} fetched successfully.", id);
         return Ok(ticket);
     }
 
     [HttpGet("{id:int}/comments")]
     public async Task<ActionResult<IEnumerable<TicketCommentDto>>> GetComments(int id)
     {
+        _logger.LogInformation("Fetching comments for ticket {TicketId}.", id);
+
         var ticketExists = await _context.Tickets.AnyAsync(x => x.Id == id);
 
         if (!ticketExists)
+        {
+            _logger.LogWarning("Comments fetch failed. Ticket {TicketId} was not found.", id);
             return NotFound("Ticket not found.");
+        }
 
         var comments = await _context.TicketComments
             .Include(x => x.User)
@@ -183,21 +222,39 @@ public class TicketsController : ControllerBase
             })
             .ToListAsync();
 
+        _logger.LogInformation(
+            "Comments fetched successfully for ticket {TicketId}. Returned {CommentCount} comments.",
+            id,
+            comments.Count);
         return Ok(comments);
     }
 
     [HttpPost("{id:int}/comments")]
     public async Task<ActionResult<TicketCommentDto>> AddComment(int id, CreateTicketCommentDto dto)
     {
+        _logger.LogInformation(
+            "Creating comment for ticket {TicketId} by user {UserId}.",
+            id,
+            dto.UserId);
+
         var ticket = await _context.Tickets.FirstOrDefaultAsync(x => x.Id == id);
 
         if (ticket is null)
+        {
+            _logger.LogWarning("Comment creation failed. Ticket {TicketId} was not found.", id);
             return NotFound("Ticket not found.");
+        }
 
         var userExists = await _context.Users.AnyAsync(x => x.Id == dto.UserId);
 
         if (!userExists)
+        {
+            _logger.LogWarning(
+                "Comment creation failed. User {UserId} was not found for ticket {TicketId}.",
+                dto.UserId,
+                id);
             return BadRequest("The informed userId does not exist.");
+        }
 
         var comment = new TicketComment
         {
@@ -223,12 +280,23 @@ public class TicketsController : ControllerBase
             })
             .FirstAsync();
 
+        _logger.LogInformation(
+            "Comment {CommentId} created successfully for ticket {TicketId}.",
+            createdComment.Id,
+            id);
+
         return Ok(createdComment);
     }
 
     [HttpPut("{id:int}/status")]
     public async Task<ActionResult<TicketDto>> UpdateStatus(int id, UpdateTicketStatusDto dto)
     {
+        _logger.LogInformation(
+            "Updating status for ticket {TicketId} to {NewStatus} by user {ChangedByUserId}.",
+            id,
+            dto.NewStatus,
+            dto.ChangedByUserId);
+
         var ticket = await _context.Tickets
             .Include(x => x.Category)
             .Include(x => x.AssignedToUser)
@@ -236,15 +304,30 @@ public class TicketsController : ControllerBase
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (ticket is null)
+        {
+            _logger.LogWarning("Status update failed. Ticket {TicketId} was not found.", id);
             return NotFound("Ticket not found.");
+        }
 
         var userExists = await _context.Users.AnyAsync(x => x.Id == dto.ChangedByUserId);
 
         if (!userExists)
+        {
+            _logger.LogWarning(
+                "Status update failed. ChangedByUserId {ChangedByUserId} was not found for ticket {TicketId}.",
+                dto.ChangedByUserId,
+                id);
             return BadRequest("The informed changedByUserId does not exist.");
+        }
 
         if (!Enum.IsDefined(typeof(TicketStatus), dto.NewStatus))
+        {
+            _logger.LogWarning(
+                "Status update failed. Invalid new status {NewStatus} for ticket {TicketId}.",
+                dto.NewStatus,
+                id);
             return BadRequest("The informed newStatus is invalid.");
+        }
 
         var oldStatus = ticket.Status;
         var newStatus = (TicketStatus)dto.NewStatus;
@@ -280,12 +363,22 @@ public class TicketsController : ControllerBase
             UpdatedAt = ticket.UpdatedAt
         };
 
+        _logger.LogInformation(
+            "Ticket {TicketId} status updated successfully from {OldStatus} to {NewStatus}.",
+            ticket.Id,
+            oldStatus,
+            newStatus);
         return Ok(updatedTicket);
     }
 
     [HttpPut("{id:int}/assign")]
     public async Task<ActionResult<TicketDto>> AssignTicket(int id, AssignTicketDto dto)
     {
+        _logger.LogInformation(
+            "Assigning ticket {TicketId} to user {AssignedToUserId}.",
+            id,
+            dto.AssignedToUserId);
+
         var ticket = await _context.Tickets
             .Include(x => x.Category)
             .Include(x => x.AssignedToUser)
@@ -293,20 +386,41 @@ public class TicketsController : ControllerBase
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (ticket is null)
+        {
+            _logger.LogWarning("Ticket assignment failed. Ticket {TicketId} was not found.", id);
             return NotFound("Ticket not found.");
+        }
 
         var assignedUser = await _context.Users
             .Include(x => x.Role)
             .FirstOrDefaultAsync(x => x.Id == dto.AssignedToUserId);
 
         if (assignedUser is null)
+        {
+            _logger.LogWarning(
+                "Ticket assignment failed. Assigned user {AssignedToUserId} was not found for ticket {TicketId}.",
+                dto.AssignedToUserId,
+                id);
             return BadRequest("The informed assignedToUserId does not exist.");
+        }
 
         if (assignedUser.Role is null)
+        {
+            _logger.LogError(
+                "Ticket assignment failed. Assigned user {AssignedToUserId} has no role assigned.",
+                dto.AssignedToUserId);
             return StatusCode(500, "Assigned user role is not assigned.");
+        }
 
         if (assignedUser.Role.Name != "Agent" && assignedUser.Role.Name != "Admin")
+        {
+            _logger.LogWarning(
+                "Ticket assignment failed. User {AssignedToUserId} with role {Role} cannot be assigned to ticket {TicketId}.",
+                dto.AssignedToUserId,
+                assignedUser.Role.Name,
+                id);
             return BadRequest("Only Admin or Agent users can be assigned to tickets.");
+        }
 
         ticket.AssignedToUserId = dto.AssignedToUserId;
         ticket.UpdatedAt = DateTime.UtcNow;
@@ -330,16 +444,25 @@ public class TicketsController : ControllerBase
             UpdatedAt = ticket.UpdatedAt
         };
 
+        _logger.LogInformation(
+            "Ticket {TicketId} assigned successfully to user {AssignedToUserId}.",
+            ticket.Id,
+            dto.AssignedToUserId);
         return Ok(updatedTicket);
     }
 
     [HttpGet("{id:int}/status-history")]
     public async Task<ActionResult<IEnumerable<TicketStatusHistoryDto>>> GetStatusHistory(int id)
     {
+        _logger.LogInformation("Fetching status history for ticket {TicketId}.", id);
+
         var ticketExists = await _context.Tickets.AnyAsync(x => x.Id == id);
 
         if (!ticketExists)
+        {
+            _logger.LogWarning("Status history fetch failed. Ticket {TicketId} was not found.", id);
             return NotFound("Ticket not found.");
+        }
 
         var history = await _context.TicketStatusHistories
             .Include(x => x.ChangedByUser)
@@ -357,28 +480,51 @@ public class TicketsController : ControllerBase
             })
             .ToListAsync();
 
+        _logger.LogInformation(
+            "Status history fetched successfully for ticket {TicketId}. Returned {HistoryCount} items.",
+            id,
+            history.Count);
         return Ok(history);
     }
 
     [HttpPost]
     public async Task<ActionResult<TicketDto>> Create(CreateTicketDto dto)
     {
+        _logger.LogInformation(
+            "Creating ticket with title {Title} for user {CreatedByUserId}.",
+            dto.Title,
+            dto.CreatedByUserId); 
         var categoryExists = await _context.Categories.AnyAsync(x => x.Id == dto.CategoryId);
 
         if (!categoryExists)
+        {
+            _logger.LogWarning(
+                "Ticket creation failed. Category {CategoryId} was not found.",
+                dto.CategoryId);
             return BadRequest("The informed category does not exist.");
+        }
 
         var createdByUserExists = await _context.Users.AnyAsync(x => x.Id == dto.CreatedByUserId);
 
         if (!createdByUserExists)
+        {
+            _logger.LogWarning(
+                "Ticket creation failed. CreatedByUserId {CreatedByUserId} was not found.",
+                dto.CreatedByUserId);
             return BadRequest("The informed createdByUserId does not exist.");
+        }
 
         if (dto.AssignedToUserId.HasValue)
         {
             var assignedUserExists = await _context.Users.AnyAsync(x => x.Id == dto.AssignedToUserId.Value);
 
             if (!assignedUserExists)
+            {
+                _logger.LogWarning(
+                    "Ticket creation failed. AssignedToUserId {AssignedToUserId} was not found.",
+                    dto.AssignedToUserId.Value);
                 return BadRequest("The informed assignedToUserId does not exist.");
+            }
         }
 
         var ticket = new Ticket
@@ -418,6 +564,9 @@ public class TicketsController : ControllerBase
             })
             .FirstAsync();
 
+        _logger.LogInformation(
+            "Ticket {TicketId} created successfully.",
+            ticket.Id);
         return CreatedAtAction(nameof(GetById), new { id = ticket.Id }, createdTicket);
     }
 
