@@ -16,30 +16,45 @@ public class AuthController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<AuthController> _logger;
 
-    public AuthController(AppDbContext context, IConfiguration configuration)
+    public AuthController(
+        AppDbContext context,
+        IConfiguration configuration,
+        ILogger<AuthController> logger)
     {
         _context = context;
         _configuration = configuration;
+        _logger = logger;
     }
 
     [AllowAnonymous]
     [HttpPost("login")]
     public async Task<ActionResult<AuthResponseDto>> Login(LoginDto dto)
     {
+        _logger.LogInformation("Login attempt for email {Email}.", dto.Email);
         var user = await _context.Users
             .Include(x => x.Role)
             .FirstOrDefaultAsync(x => x.Email == dto.Email);
 
         if (user is null)
+        {
+            _logger.LogWarning("Login failed. User not found for email {Email}.", dto.Email);
             return Unauthorized("Invalid email or password.");
+        }
 
         if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+        {
+            _logger.LogWarning("Login failed. Invalid password for email {Email}", dto.Email);
             return Unauthorized("Invalid email or password.");
+        }
 
         if (user.Role is null)
+        {
+            _logger.LogError("Login failed. User {Email} has no role assigned.", dto.Email);
             return StatusCode(500, "User role is not assigned.");
-
+        }
+        
         var key = _configuration["Jwt:Key"];
 
         if (string.IsNullOrWhiteSpace(key))
@@ -51,7 +66,10 @@ public class AuthController : ControllerBase
         var audience = _configuration["Jwt:Audience"];
 
         if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(issuer) || string.IsNullOrWhiteSpace(audience))
+        {
+            _logger.LogError("Login failed. JWT configuration is invalid for email {Email}.", dto.Email);
             return StatusCode(500, "JWT configuration is invalid.");
+        }
 
         var expiresAt = DateTime.UtcNow.AddHours(2);
 
@@ -84,6 +102,8 @@ public class AuthController : ControllerBase
             Email = user.Email,
             Role = user.Role.Name
         };
+
+        _logger.LogInformation("Login succeeded for email {Email} with role {Role}.", dto.Email, user.Role.Name);
 
         return Ok(response);
     }
