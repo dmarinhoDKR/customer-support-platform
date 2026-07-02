@@ -117,6 +117,7 @@ Detailed ticket view with metadata, comments, and status history.
 - Automated API regression checks with Newman and the Postman collection
 - Load and stress testing scripts with Grafana k6 for login, ticket listing, and dashboard summary
 - Structured backend startup logging with Serilog
+- Lightweight runtime metrics endpoint for uptime and request counters
 
 ## API Testing
 
@@ -220,6 +221,7 @@ dotnet run --project ./CustomerSupport.API/CustomerSupport.API.csproj
 API:
 - Swagger: http://localhost:5132/swagger
 - Health check: http://localhost:5132/health
+- Metrics: http://localhost:5132/metrics
 
 ### 4. Run the frontend
 

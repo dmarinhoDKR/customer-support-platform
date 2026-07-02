@@ -7,6 +7,7 @@ using CustomerSupport.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
+using CustomerSupport.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,7 @@ builder.Host.UseSerilog();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHealthChecks();
+builder.Services.AddSingleton<MetricsService>();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -213,8 +215,26 @@ app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.Use(async (context, next) =>
+{
+    await next();
+
+    var metricsService = context.RequestServices.GetRequiredService<MetricsService>();
+    metricsService.RegisterRequest(context.Response.StatusCode);
+});
+
 app.MapControllers();
 app.MapHealthChecks("/health");
+app.MapGet("/metrics", (MetricsService metricsService) =>
+{
+    return Results.Ok(new
+    {
+        startedAtUtc = metricsService.StartedAtUtc,
+        uptimeSeconds = Math.Round(metricsService.UptimeSeconds, 2),
+        totalRequests = metricsService.TotalRequests,
+        failedRequests = metricsService.FailedRequests
+    });
+});
 
 app.Run();
 
