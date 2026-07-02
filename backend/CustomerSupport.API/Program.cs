@@ -231,8 +231,28 @@ app.MapGet("/metrics", (MetricsService metricsService) =>
     {
         startedAtUtc = metricsService.StartedAtUtc,
         uptimeSeconds = Math.Round(metricsService.UptimeSeconds, 2),
-        totalRequests = metricsService.TotalRequests,
-        failedRequests = metricsService.FailedRequests
+
+        requests = new
+        {
+            total = metricsService.TotalRequests,
+            successful = metricsService.SuccessfulRequests,
+            failed = metricsService.FailedRequests
+        },
+
+        auth = new
+        {
+            loginAttempts = metricsService.LoginAttempts,
+            loginSuccesses = metricsService.LoginSuccesses,
+            loginFailures = metricsService.LoginFailures
+        },
+
+        tickets = new
+        {
+            created = metricsService.TicketsCreated,
+            commentsCreated = metricsService.CommentsCreated,
+            statusUpdates = metricsService.StatusUpdates,
+            assignments = metricsService.TicketAssignments
+        }
     });
 });
 

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using CustomerSupport.API.DTOs;
+using CustomerSupport.API.Services;
 using CustomerSupport.Domain.Entities;
 using CustomerSupport.Domain.Enums;
 using CustomerSupport.Infrastructure.Data;
@@ -15,13 +16,16 @@ public class TicketsController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly ILogger<TicketsController> _logger;
+    private readonly MetricsService _metricsService;
 
     public TicketsController(
         AppDbContext context,
-        ILogger<TicketsController> logger)
+        ILogger<TicketsController> logger,
+        MetricsService metricsService)
     {
         _context = context;
         _logger = logger;
+        _metricsService = metricsService;
     }
 
     [HttpGet]
@@ -284,7 +288,7 @@ public class TicketsController : ControllerBase
             "Comment {CommentId} created successfully for ticket {TicketId}.",
             createdComment.Id,
             id);
-
+        _metricsService.RegisterCommentCreated();
         return Ok(createdComment);
     }
 
@@ -368,6 +372,7 @@ public class TicketsController : ControllerBase
             ticket.Id,
             oldStatus,
             newStatus);
+        _metricsService.RegisterStatusUpdate();
         return Ok(updatedTicket);
     }
 
@@ -448,6 +453,7 @@ public class TicketsController : ControllerBase
             "Ticket {TicketId} assigned successfully to user {AssignedToUserId}.",
             ticket.Id,
             dto.AssignedToUserId);
+        _metricsService.RegisterTicketAssignment();
         return Ok(updatedTicket);
     }
 
@@ -568,6 +574,7 @@ public class TicketsController : ControllerBase
         _logger.LogInformation(
             "Ticket {TicketId} created successfully.",
             ticket.Id);
+            _metricsService.RegisterTicketCreated();
         return CreatedAtAction(nameof(GetById), new { id = ticket.Id }, createdTicket);
     }
 
