@@ -95,6 +95,15 @@ jobs:
           cat api.log || true
           exit 1
 
+      - name: Check metrics endpoint
+        run: |
+          echo "Health response:"
+          curl -s http://localhost:5132/health
+          echo
+          echo "Metrics response:"
+          curl -s http://localhost:5132/metrics
+          echo
+
       - name: Run Postman collection with Newman
         run: |
           newman run docs/postman/CustomerSupport.postman_collection.json --env-var "baseUrl=http://localhost:5132"
