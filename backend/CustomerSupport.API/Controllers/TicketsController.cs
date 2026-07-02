@@ -493,7 +493,8 @@ public class TicketsController : ControllerBase
         _logger.LogInformation(
             "Creating ticket with title {Title} for user {CreatedByUserId}.",
             dto.Title,
-            dto.CreatedByUserId); 
+            dto.CreatedByUserId);
+
         var categoryExists = await _context.Categories.AnyAsync(x => x.Id == dto.CategoryId);
 
         if (!categoryExists)
