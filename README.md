@@ -92,7 +92,7 @@ Detailed ticket view with metadata, comments, and status history.
 - Grafana k6 load testing with threshold-based validation for authenticated API scenarios
 - Postman collection for manual API testing and QA workflows
 - Backend health check endpoint integrated into CI readiness validation
-- Health check endpoint and structured console logging for backend observability
+- Backend observability with health check, structured Serilog logs, and runtime metrics endpoint
 
 ## Current Features
 
@@ -118,6 +118,8 @@ Detailed ticket view with metadata, comments, and status history.
 - Load and stress testing scripts with Grafana k6 for login, ticket listing, and dashboard summary
 - Structured backend startup logging with Serilog
 - Lightweight runtime metrics endpoint for uptime and request counters
+- Backend observability endpoints with `/health` and `/metrics`
+- Structured backend logging with Serilog for startup, authentication, and ticket workflows
 
 ## API Testing
 
@@ -220,6 +222,8 @@ dotnet run --project ./CustomerSupport.API/CustomerSupport.API.csproj
 
 API:
 - Swagger: http://localhost:5132/swagger
+
+Observability:
 - Health check: http://localhost:5132/health
 - Metrics: http://localhost:5132/metrics
 
