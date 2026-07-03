@@ -116,8 +116,9 @@ Detailed ticket view with metadata, comments, and status history.
 - Backend health check endpoint for runtime availability validation
 - Automated API regression checks with Newman and the Postman collection
 - Load and stress testing scripts with Grafana k6 for login, ticket listing, and dashboard summary
-- Lightweight runtime metrics endpoint for uptime, request counters, and normalized per-endpoint tracking
+- Lightweight runtime metrics endpoint for uptime, request counters, normalized per-endpoint tracking, and ticket read/write activity metrics
 - Backend observability endpoints with `/health` and `/metrics`
+- Ticket metrics coverage for create, fetch, comments, status history, status updates, and assignment flows
 - Structured backend logging with Serilog for startup, authentication, and ticket workflows
 
 ## API Testing
