@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 namespace CustomerSupport.API.Services;
 
 public class MetricsService
@@ -17,6 +19,8 @@ public class MetricsService
     private int _statusUpdates;
     private int _ticketAssignments;
 
+    private readonly ConcurrentDictionary<string, int> _requestsByEndpoint = new();
+
     public DateTime StartedAtUtc => _startedAtUtc;
     public double UptimeSeconds => (DateTime.UtcNow - _startedAtUtc).TotalSeconds;
 
@@ -33,9 +37,14 @@ public class MetricsService
     public int StatusUpdates => _statusUpdates;
     public int TicketAssignments => _ticketAssignments;
 
-    public void RegisterRequest(int statusCode)
+    public IReadOnlyDictionary<string, int> RequestsByEndpoint => _requestsByEndpoint;
+
+    public void RegisterRequest(string endpoint, int statusCode)
     {
         Interlocked.Increment(ref _totalRequests);
+
+        var normalizedEndpoint = string.IsNullOrWhiteSpace(endpoint) ? "unknown" : endpoint;
+        _requestsByEndpoint.AddOrUpdate(normalizedEndpoint, 1, (_, current) => current + 1);
 
         if (statusCode >= 400)
         {

@@ -220,7 +220,12 @@ app.Use(async (context, next) =>
     await next();
 
     var metricsService = context.RequestServices.GetRequiredService<MetricsService>();
-    metricsService.RegisterRequest(context.Response.StatusCode);
+
+    var endpoint = context.Request.Path.HasValue
+        ? context.Request.Path.Value!
+        : "unknown";
+
+    metricsService.RegisterRequest(endpoint, context.Response.StatusCode);
 });
 
 app.MapControllers();
@@ -236,7 +241,8 @@ app.MapGet("/metrics", (MetricsService metricsService) =>
         {
             total = metricsService.TotalRequests,
             successful = metricsService.SuccessfulRequests,
-            failed = metricsService.FailedRequests
+            failed = metricsService.FailedRequests,
+            byEndpoint = metricsService.RequestsByEndpoint
         },
 
         auth = new
