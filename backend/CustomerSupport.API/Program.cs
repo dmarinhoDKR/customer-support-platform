@@ -225,6 +225,8 @@ app.Use(async (context, next) =>
         ? context.Request.Path.Value!
         : "unknown";
 
+    endpoint = NormalizedMetricsEndpoint(endpoint);
+
     metricsService.RegisterRequest(endpoint, context.Response.StatusCode);
 });
 
@@ -261,6 +263,19 @@ app.MapGet("/metrics", (MetricsService metricsService) =>
         }
     });
 });
+
+static string NormalizedMetricsEndpoint(string endpoint)
+{
+    if (string.IsNullOrWhiteSpace(endpoint))
+        return "unknown";
+
+    var segments = endpoint
+        .Split('/', StringSplitOptions.RemoveEmptyEntries)
+        .Select(segment => int.TryParse(segment, out _) ? "{id}" : segment)
+        .ToArray();
+
+    return "/" + string.Join("/", segments);
+}
 
 app.Run();
 
