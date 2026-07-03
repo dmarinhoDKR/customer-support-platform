@@ -27,6 +27,8 @@ public class HealthEndpointsTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task MetricsEndpoint_ShouldReturnMetricsPayload()
     {
+        await _client.GetAsync("/health");
+
         var response = await _client.GetAsync("/metrics");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -38,6 +40,9 @@ public class HealthEndpointsTests : IClassFixture<CustomWebApplicationFactory>
         body.UptimeSeconds.Should().BeGreaterThanOrEqualTo(0);
 
         body.Requests.Should().NotBeNull();
+        body.Requests.ByEndpoint.Should().NotBeNull();
+        body.Requests.ByEndpoint.Should().ContainKey("/health");
+        body.Requests.ByEndpoint.Should().BeAssignableTo<IDictionary<string, int>>();
         body.Auth.Should().NotBeNull();
         body.Tickets.Should().NotBeNull();
     }
@@ -56,6 +61,7 @@ public class HealthEndpointsTests : IClassFixture<CustomWebApplicationFactory>
         public int Total { get; set; }
         public int Successful { get; set; }
         public int Failed { get; set; }
+        public Dictionary<string, int> ByEndpoint { get; set; } = new();
     }
 
     public class AuthDto
