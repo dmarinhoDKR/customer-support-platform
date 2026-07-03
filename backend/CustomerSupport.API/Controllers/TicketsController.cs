@@ -195,6 +195,7 @@ public class TicketsController : ControllerBase
         }
 
         _logger.LogInformation("Ticket {TicketId} fetched successfully.", id);
+        _metricsService.RegisterTicketFetched();
         return Ok(ticket);
     }
 
@@ -230,6 +231,7 @@ public class TicketsController : ControllerBase
             "Comments fetched successfully for ticket {TicketId}. Returned {CommentCount} comments.",
             id,
             comments.Count);
+        _metricsService.RegisterCommentsFetched();
         return Ok(comments);
     }
 
@@ -490,6 +492,7 @@ public class TicketsController : ControllerBase
             "Status history fetched successfully for ticket {TicketId}. Returned {HistoryCount} items.",
             id,
             history.Count);
+        _metricsService.RegisterStatusHistoryFetched();
         return Ok(history);
     }
 

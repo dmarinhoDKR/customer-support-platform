@@ -15,8 +15,11 @@ public class MetricsService
     private int _loginFailures;
 
     private int _ticketsCreated;
+    private int _ticketsFetched;
     private int _commentsCreated;
+    private int _commentsFetched;
     private int _statusUpdates;
+    private int _statusHistoryFetched;
     private int _ticketAssignments;
 
     private readonly ConcurrentDictionary<string, int> _requestsByEndpoint = new();
@@ -33,8 +36,11 @@ public class MetricsService
     public int LoginFailures => _loginFailures;
 
     public int TicketsCreated => _ticketsCreated;
+    public int TicketsFetched => _ticketsFetched;
     public int CommentsCreated => _commentsCreated;
+    public int CommentsFetched => _commentsFetched;
     public int StatusUpdates => _statusUpdates;
+    public int StatusHistoryFetched => _statusHistoryFetched;
     public int TicketAssignments => _ticketAssignments;
 
     public IReadOnlyDictionary<string, int> RequestsByEndpoint => _requestsByEndpoint;
@@ -88,5 +94,20 @@ public class MetricsService
     public void RegisterTicketAssignment()
     {
         Interlocked.Increment(ref _ticketAssignments);
+    }
+
+    public void RegisterTicketFetched()
+    {
+        Interlocked.Increment(ref _ticketsFetched);
+    }
+
+    public void RegisterCommentsFetched()
+    {
+        Interlocked.Increment(ref _commentsFetched);
+    }
+
+    public void RegisterStatusHistoryFetched()
+    {
+        Interlocked.Increment(ref _statusHistoryFetched);
     }
 }

@@ -257,8 +257,11 @@ app.MapGet("/metrics", (MetricsService metricsService) =>
         tickets = new
         {
             created = metricsService.TicketsCreated,
+            fetched = metricsService.TicketsFetched,
             commentsCreated = metricsService.CommentsCreated,
+            commentsFetched = metricsService.CommentsFetched,
             statusUpdates = metricsService.StatusUpdates,
+            statusHistoryFetched = metricsService.StatusHistoryFetched,
             assignments = metricsService.TicketAssignments
         }
     });
