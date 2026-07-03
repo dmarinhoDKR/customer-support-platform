@@ -45,6 +45,9 @@ public class HealthEndpointsTests : IClassFixture<CustomWebApplicationFactory>
         body.Requests.ByEndpoint.Should().BeAssignableTo<IDictionary<string, int>>();
         body.Auth.Should().NotBeNull();
         body.Tickets.Should().NotBeNull();
+        body.Tickets.Fetched.Should().BeGreaterThanOrEqualTo(0);
+        body.Tickets.CommentsFetched.Should().BeGreaterThanOrEqualTo(0);
+        body.Tickets.StatusHistoryFetched.Should().BeGreaterThanOrEqualTo(0);
     }
 
     public class MetricsResponseDto
@@ -74,8 +77,11 @@ public class HealthEndpointsTests : IClassFixture<CustomWebApplicationFactory>
     public class TicketsDto
     {
         public int Created { get; set; }
+        public int Fetched { get; set; }
         public int CommentsCreated { get; set; }
+        public int CommentsFetched { get; set; }
         public int StatusUpdates { get; set; }
+        public int StatusHistoryFetched { get; set; }
         public int Assignments { get; set; }
     }
 }
