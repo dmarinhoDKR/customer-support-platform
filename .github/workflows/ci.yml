@@ -104,6 +104,31 @@ jobs:
           curl -s http://localhost:5132/metrics
           echo
 
+      - name: Validate metrics payload
+        run: |
+          metrics_json=$(curl -s http://localhost:5132/metrics)
+
+          echo "$metrics_json" | jq .
+
+          echo "$metrics_json" | jq -e '
+            .startedAtUtc and
+            (.uptimeSeconds >= 0) and
+            .requests and
+            (.requests.total >= 0) and
+            (.requests.successful >= 0) and
+            (.requests.failed >= 0) and
+            .requests.byEndpoint and
+            .auth and
+            (.auth.loginAttempts >= 0) and
+            (.auth.loginSuccesses >= 0) and
+            (.auth.loginFailures >= 0) and
+            .tickets and
+            (.tickets.created >= 0) and
+            (.tickets.commentsCreated >= 0) and
+            (.tickets.statusUpdates >= 0) and
+            (.tickets.assignments >= 0)
+          ' > /dev/null
+
       - name: Run Postman collection with Newman
         run: |
           newman run docs/postman/CustomerSupport.postman_collection.json --env-var "baseUrl=http://localhost:5132"
