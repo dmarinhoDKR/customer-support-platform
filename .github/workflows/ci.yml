@@ -118,6 +118,7 @@ jobs:
             (.requests.successful >= 0) and
             (.requests.failed >= 0) and
             .requests.byEndpoint and
+            (.requests.byEndpoint | type == "object") and
             .auth and
             (.auth.loginAttempts >= 0) and
             (.auth.loginSuccesses >= 0) and
