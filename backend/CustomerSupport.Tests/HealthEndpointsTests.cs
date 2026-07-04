@@ -1,6 +1,9 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Net.Http.Headers;
 using FluentAssertions;
+using CustomerSupport.API.DTOs;
+
 
 namespace CustomerSupport.Tests;
 
@@ -28,6 +31,34 @@ public class HealthEndpointsTests : IClassFixture<CustomWebApplicationFactory>
     public async Task MetricsEndpoint_ShouldReturnMetricsPayload()
     {
         await _client.GetAsync("/health");
+        await AuthenticateAsync();
+
+        var createResponse = await _client.PostAsJsonAsync("/api/Tickets", new CreateTicketDto
+        {
+            Title = "Metrics ticket",
+            Description = "Created to validate metrics counters.",
+            CategoryId = 1,
+            CreatedByUserId = 1,
+            AssignedToUserId = null,
+            Priority = 2
+        });
+
+        createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var createdTicket = await createResponse.Content.ReadFromJsonAsync<TicketResponseDto>();
+
+        createdTicket.Should().NotBeNull();
+
+        var ticketId = createdTicket!.Id;
+
+        var getTicketResponse = await _client.GetAsync($"/api/Tickets/{ticketId}");
+        getTicketResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var getCommentsResponse = await _client.GetAsync($"/api/Tickets/{ticketId}/comments");
+        getCommentsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var getStatusHistoryResponse = await _client.GetAsync($"/api/Tickets/{ticketId}/status-history");
+        getStatusHistoryResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var response = await _client.GetAsync("/metrics");
 
@@ -43,6 +74,7 @@ public class HealthEndpointsTests : IClassFixture<CustomWebApplicationFactory>
         body.Requests.ByEndpoint.Should().NotBeNull();
         body.Requests.ByEndpoint.Should().ContainKey("/health");
         body.Requests.ByEndpoint.Should().BeAssignableTo<IDictionary<string, int>>();
+
         body.Auth.Should().NotBeNull();
         body.Tickets.Should().NotBeNull();
         body.Tickets.Fetched.Should().BeGreaterThanOrEqualTo(0);
@@ -83,5 +115,39 @@ public class HealthEndpointsTests : IClassFixture<CustomWebApplicationFactory>
         public int StatusUpdates { get; set; }
         public int StatusHistoryFetched { get; set; }
         public int Assignments { get; set; }
+    }
+
+    public class TicketResponseDto
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public string Priority { get; set; } = string.Empty;
+        public int CategoryId { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
+        public int CreatedByUserId { get; set; }
+        public string CreatedByUserName { get; set; } = string.Empty;
+        public int? AssignedToUserId { get; set; }
+        public string? AssignedToUserName { get; set; }
+    }
+
+    private async Task AuthenticateAsync()
+    {
+        var loginResponse = await _client.PostAsJsonAsync("/api/Auth/login", new LoginDto
+        {
+            Email = "admin@customersupport.com",
+            Password = "admin123"
+        });
+
+        loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var authBody = await loginResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
+
+        authBody.Should().NotBeNull();
+        authBody!.Token.Should().NotBeNullOrWhiteSpace();
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", authBody.Token);
     }
 }
