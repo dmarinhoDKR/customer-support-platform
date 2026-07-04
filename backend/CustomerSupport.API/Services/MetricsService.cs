@@ -15,12 +15,19 @@ public class MetricsService
     private int _loginFailures;
 
     private int _ticketsCreated;
+    private int _ticketCreationFailures;
     private int _ticketsFetched;
+    private int _ticketFetchFailures;
     private int _commentsCreated;
+    private int _commentCreationFailures;
     private int _commentsFetched;
+    private int _commentsFetchFailures;
     private int _statusUpdates;
+    private int _statusUpdateFailures;
     private int _statusHistoryFetched;
+    private int _statusHistoryFetchFailures;
     private int _ticketAssignments;
+    private int _ticketAssignmentFailures;
 
     private readonly ConcurrentDictionary<string, int> _requestsByEndpoint = new();
 
@@ -36,12 +43,19 @@ public class MetricsService
     public int LoginFailures => _loginFailures;
 
     public int TicketsCreated => _ticketsCreated;
+    public int TicketCreationFailures => _ticketCreationFailures;
     public int TicketsFetched => _ticketsFetched;
+    public int TicketFetchFailures => _ticketFetchFailures;
     public int CommentsCreated => _commentsCreated;
+    public int CommentCreationFailures => _commentCreationFailures;
     public int CommentsFetched => _commentsFetched;
+    public int CommentsFetchFailures => _commentsFetchFailures;
     public int StatusUpdates => _statusUpdates;
+    public int StatusUpdateFailures => _statusUpdateFailures;
     public int StatusHistoryFetched => _statusHistoryFetched;
+    public int StatusHistoryFetchFailures => _statusHistoryFetchFailures;
     public int TicketAssignments => _ticketAssignments;
+    public int TicketAssignmentFailures => _ticketAssignmentFailures;
 
     public IReadOnlyDictionary<string, int> RequestsByEndpoint => _requestsByEndpoint;
 
@@ -109,5 +123,40 @@ public class MetricsService
     public void RegisterStatusHistoryFetched()
     {
         Interlocked.Increment(ref _statusHistoryFetched);
+    }
+
+    public void RegisterTicketFetchFailure()
+    {
+        Interlocked.Increment(ref _ticketFetchFailures);
+    }
+
+    public void RegisterCommentsFetchFailure()
+    {
+        Interlocked.Increment(ref _commentsFetchFailures);
+    }
+
+    public void RegisterStatusHistoryFetchFailure()
+    {
+        Interlocked.Increment(ref _statusHistoryFetchFailures);
+    }
+
+    public void RegisterTicketCreationFailure()
+    {
+        Interlocked.Increment(ref _ticketCreationFailures);
+    }
+
+    public void RegisterCommentCreationFailure()
+    {
+        Interlocked.Increment(ref _commentCreationFailures);
+    }
+
+    public void RegisterStatusUpdateFailure()
+    {
+        Interlocked.Increment(ref _statusUpdateFailures);
+    }
+
+    public void RegisterTicketAssignmentFailure()
+    {
+        Interlocked.Increment(ref _ticketAssignmentFailures);
     }
 }

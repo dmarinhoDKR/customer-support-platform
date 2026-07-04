@@ -60,6 +60,15 @@ public class HealthEndpointsTests : IClassFixture<CustomWebApplicationFactory>
         var getStatusHistoryResponse = await _client.GetAsync($"/api/Tickets/{ticketId}/status-history");
         getStatusHistoryResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
+        var missingTicketResponse = await _client.GetAsync("/api/Tickets/9999");
+        missingTicketResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        var missingCommentsResponse = await _client.GetAsync("/api/Tickets/9999/comments");
+        missingCommentsResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        var missingStatusHistoryResponse = await _client.GetAsync("/api/Tickets/9999/status-history");
+        missingStatusHistoryResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
         var response = await _client.GetAsync("/metrics");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -77,9 +86,17 @@ public class HealthEndpointsTests : IClassFixture<CustomWebApplicationFactory>
 
         body.Auth.Should().NotBeNull();
         body.Tickets.Should().NotBeNull();
-        body.Tickets.Fetched.Should().BeGreaterThanOrEqualTo(0);
-        body.Tickets.CommentsFetched.Should().BeGreaterThanOrEqualTo(0);
-        body.Tickets.StatusHistoryFetched.Should().BeGreaterThanOrEqualTo(0);
+        body.Tickets.Fetched.Should().BeGreaterThan(0);
+        body.Tickets.CommentsFetched.Should().BeGreaterThan(0);
+        body.Tickets.StatusHistoryFetched.Should().BeGreaterThan(0);
+
+        body.Tickets.CreationFailures.Should().BeGreaterThanOrEqualTo(0);
+        body.Tickets.FetchFailures.Should().BeGreaterThan(0);
+        body.Tickets.CommentCreationFailures.Should().BeGreaterThanOrEqualTo(0);
+        body.Tickets.CommentsFetchFailures.Should().BeGreaterThan(0);
+        body.Tickets.StatusUpdateFailures.Should().BeGreaterThanOrEqualTo(0);
+        body.Tickets.StatusHistoryFetchFailures.Should().BeGreaterThan(0);
+        body.Tickets.AssignmentFailures.Should().BeGreaterThanOrEqualTo(0);
     }
 
     public class MetricsResponseDto
@@ -109,12 +126,19 @@ public class HealthEndpointsTests : IClassFixture<CustomWebApplicationFactory>
     public class TicketsDto
     {
         public int Created { get; set; }
+        public int CreationFailures { get; set; }
         public int Fetched { get; set; }
+        public int FetchFailures { get; set; }
         public int CommentsCreated { get; set; }
+        public int CommentCreationFailures { get; set; }
         public int CommentsFetched { get; set; }
+        public int CommentsFetchFailures { get; set; }
         public int StatusUpdates { get; set; }
+        public int StatusUpdateFailures { get; set; }
         public int StatusHistoryFetched { get; set; }
+        public int StatusHistoryFetchFailures { get; set; }
         public int Assignments { get; set; }
+        public int AssignmentFailures { get; set; }
     }
 
     public class TicketResponseDto

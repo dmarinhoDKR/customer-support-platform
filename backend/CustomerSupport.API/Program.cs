@@ -257,12 +257,19 @@ app.MapGet("/metrics", (MetricsService metricsService) =>
         tickets = new
         {
             created = metricsService.TicketsCreated,
+            creationFailures = metricsService.TicketCreationFailures,
             fetched = metricsService.TicketsFetched,
+            fetchFailures = metricsService.TicketFetchFailures,
             commentsCreated = metricsService.CommentsCreated,
+            commentCreationFailures = metricsService.CommentCreationFailures,
             commentsFetched = metricsService.CommentsFetched,
+            commentsFetchFailures = metricsService.CommentsFetchFailures,
             statusUpdates = metricsService.StatusUpdates,
+            statusUpdateFailures = metricsService.StatusUpdateFailures,
             statusHistoryFetched = metricsService.StatusHistoryFetched,
-            assignments = metricsService.TicketAssignments
+            statusHistoryFetchFailures = metricsService.StatusHistoryFetchFailures,
+            assignments = metricsService.TicketAssignments,
+            assignmentFailures = metricsService.TicketAssignmentFailures
         }
     });
 });

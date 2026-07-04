@@ -191,6 +191,7 @@ public class TicketsController : ControllerBase
         if (ticket is null)
         {
             _logger.LogWarning("Ticket {TicketId} was not found.", id);
+            _metricsService.RegisterTicketFetchFailure();
             return NotFound();
         }
 
@@ -209,6 +210,7 @@ public class TicketsController : ControllerBase
         if (!ticketExists)
         {
             _logger.LogWarning("Comments fetch failed. Ticket {TicketId} was not found.", id);
+            _metricsService.RegisterCommentsFetchFailure();
             return NotFound("Ticket not found.");
         }
 
@@ -248,6 +250,7 @@ public class TicketsController : ControllerBase
         if (ticket is null)
         {
             _logger.LogWarning("Comment creation failed. Ticket {TicketId} was not found.", id);
+            _metricsService.RegisterCommentCreationFailure();
             return NotFound("Ticket not found.");
         }
 
@@ -259,6 +262,7 @@ public class TicketsController : ControllerBase
                 "Comment creation failed. User {UserId} was not found for ticket {TicketId}.",
                 dto.UserId,
                 id);
+            _metricsService.RegisterCommentCreationFailure();
             return BadRequest("The informed userId does not exist.");
         }
 
@@ -312,6 +316,7 @@ public class TicketsController : ControllerBase
         if (ticket is null)
         {
             _logger.LogWarning("Status update failed. Ticket {TicketId} was not found.", id);
+            _metricsService.RegisterStatusUpdateFailure();
             return NotFound("Ticket not found.");
         }
 
@@ -323,6 +328,7 @@ public class TicketsController : ControllerBase
                 "Status update failed. ChangedByUserId {ChangedByUserId} was not found for ticket {TicketId}.",
                 dto.ChangedByUserId,
                 id);
+            _metricsService.RegisterStatusUpdateFailure();
             return BadRequest("The informed changedByUserId does not exist.");
         }
 
@@ -332,6 +338,7 @@ public class TicketsController : ControllerBase
                 "Status update failed. Invalid new status {NewStatus} for ticket {TicketId}.",
                 dto.NewStatus,
                 id);
+            _metricsService.RegisterStatusUpdateFailure();
             return BadRequest("The informed newStatus is invalid.");
         }
 
@@ -395,6 +402,7 @@ public class TicketsController : ControllerBase
         if (ticket is null)
         {
             _logger.LogWarning("Ticket assignment failed. Ticket {TicketId} was not found.", id);
+            _metricsService.RegisterTicketAssignmentFailure();
             return NotFound("Ticket not found.");
         }
 
@@ -408,6 +416,7 @@ public class TicketsController : ControllerBase
                 "Ticket assignment failed. Assigned user {AssignedToUserId} was not found for ticket {TicketId}.",
                 dto.AssignedToUserId,
                 id);
+            _metricsService.RegisterTicketAssignmentFailure();
             return BadRequest("The informed assignedToUserId does not exist.");
         }
 
@@ -416,6 +425,7 @@ public class TicketsController : ControllerBase
             _logger.LogError(
                 "Ticket assignment failed. Assigned user {AssignedToUserId} has no role assigned.",
                 dto.AssignedToUserId);
+            _metricsService.RegisterTicketAssignmentFailure();
             return StatusCode(500, "Assigned user role is not assigned.");
         }
 
@@ -426,6 +436,7 @@ public class TicketsController : ControllerBase
                 dto.AssignedToUserId,
                 assignedUser.Role.Name,
                 id);
+            _metricsService.RegisterTicketAssignmentFailure();
             return BadRequest("Only Admin or Agent users can be assigned to tickets.");
         }
 
@@ -469,6 +480,7 @@ public class TicketsController : ControllerBase
         if (!ticketExists)
         {
             _logger.LogWarning("Status history fetch failed. Ticket {TicketId} was not found.", id);
+            _metricsService.RegisterStatusHistoryFetchFailure();
             return NotFound("Ticket not found.");
         }
 
@@ -511,6 +523,7 @@ public class TicketsController : ControllerBase
             _logger.LogWarning(
                 "Ticket creation failed. Category {CategoryId} was not found.",
                 dto.CategoryId);
+            _metricsService.RegisterTicketCreationFailure();
             return BadRequest("The informed category does not exist.");
         }
 
@@ -521,6 +534,7 @@ public class TicketsController : ControllerBase
             _logger.LogWarning(
                 "Ticket creation failed. CreatedByUserId {CreatedByUserId} was not found.",
                 dto.CreatedByUserId);
+            _metricsService.RegisterTicketCreationFailure();
             return BadRequest("The informed createdByUserId does not exist.");
         }
 
@@ -533,6 +547,7 @@ public class TicketsController : ControllerBase
                 _logger.LogWarning(
                     "Ticket creation failed. AssignedToUserId {AssignedToUserId} was not found.",
                     dto.AssignedToUserId.Value);
+                _metricsService.RegisterTicketCreationFailure();
                 return BadRequest("The informed assignedToUserId does not exist.");
             }
         }
@@ -577,7 +592,7 @@ public class TicketsController : ControllerBase
         _logger.LogInformation(
             "Ticket {TicketId} created successfully.",
             ticket.Id);
-            _metricsService.RegisterTicketCreated();
+        _metricsService.RegisterTicketCreated();
         return CreatedAtAction(nameof(GetById), new { id = ticket.Id }, createdTicket);
     }
 
